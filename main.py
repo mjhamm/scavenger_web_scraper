@@ -7,11 +7,6 @@ page1 = requests.get(foodNetworkURL)
 
 soup = BeautifulSoup(page1.content, "html.parser")
 
-source = ""
-website = ""
-total_time = ""
-prep_time = ""
-cook_time = ""
 fnList = []
 newList = []
 
@@ -23,6 +18,23 @@ for entry in listOfPages:
 for index in range(0, 1):
     recipe = Recipe()
     servings = ""
+    source = ""
+    url = ""
+    image = ""
+    site_name = ""
+    total_time = ""
+    prep_time = ""
+    cook_time = ""
+    calories: int
+    total_fat: int
+    saturated_fat: int
+    carbs: int
+    fiber: int
+    sugar: int
+    protein: int
+    cholesterol: int
+    sodium: int
+    rating = float
     ingredients = [str]
     steps = [str]
 
@@ -38,19 +50,36 @@ for index in range(0, 1):
         try:
             sourceFull = soup1.find("span", {"class": 'o-Attribution__a-Name'}).text.lstrip().rstrip()
             source = sourceFull.split("of ")[1]
-            print("source:" + source)
+            print("source: " + source)
         except TypeError:
             print("source type error")
 
     try:
-        website = results[2].rstrip().lstrip()
-        print("website: " + website)
-    except IndexError:
-        print("website index error")
+        site_name = soup1.find("meta", {"property": 'og:site_name'})["content"].lstrip().rstrip()
+        print("site_name: " + site_name)
+    except TypeError:
+        print("site_name type error")
+
+    try:
+        url = soup1.find("meta", {"property": 'og:url'})["content"].lstrip().rstrip()
+        print("url: " + url)
+    except TypeError:
+        print("url type error")
+
+    try:
+        image = soup1.find("meta", {"property": 'og:image'})["content"].lstrip().rstrip()
+        print("image: " + image)
+    except TypeError:
+        print("image type error")
 
     # Title
     title = soup1.find("span", {"class": 'o-AssetTitle__a-HeadlineText'}).text
     print("title: " + title)
+
+    # Rating
+    # try:
+    # except IndexError:
+    # print("rating type error")
 
     # Total time
     totalTitle = soup1.find("ul", {"class": 'o-RecipeInfo__m-Time'})
@@ -95,12 +124,18 @@ for index in range(0, 1):
         steps.append(li.text.lstrip().rstrip())
         print("step: " + li.text.lstrip().rstrip())
 
+    # Nutrition
+    for dt in soup1.find_all("dl", {"class": 'm-NutritionTable__a-Content'}):
+        print(dt)
+
     # Setting all recipe information
     recipe.id = index
     recipe.title = title
     recipe.source = source
     recipe.servings = servings
-    recipe.website = website
+    recipe.site_name = site_name
+    recipe.rating = rating
+    recipe.url = url
     recipe.total_time = total_time
     recipe.prep_time = prep_time
     recipe.cook_time = cook_time
