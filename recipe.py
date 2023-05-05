@@ -1,6 +1,5 @@
 
 class Recipe:
-    id: int
     title: str
     source: str
     site_name: str
@@ -21,3 +20,4 @@ class Recipe:
     cholesterol: int
     sodium: int
     ingredients: [str]
+    steps: [str]
