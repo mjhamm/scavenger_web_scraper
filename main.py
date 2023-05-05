@@ -92,9 +92,9 @@ for index in range(0, 1):
 
     for span in soup1.find_all("span", {"class": 'o-RecipeInfo__a-Headline'}):
         # Servings
-        if span.text.__contains__("servings"):
+        if span.text.lower().__contains__("yield"):
             if servings == "":
-                servings = span.text.lstrip().rstrip()
+                servings = span.find_next("span", {"class": 'o-RecipeInfo__a-Description'}).text.lstrip().rstrip()
                 print("servings: " + servings)
         # Prep Time
         if span.text.lower().__contains__("prep"):
@@ -125,7 +125,7 @@ for index in range(0, 1):
         print("step: " + li.text.lstrip().rstrip())
 
     # Nutrition
-    for dt in soup1.find_all("dl", {"class": 'm-NutritionTable__a-Content'}):
+    for dt in soup1.find_all("dt", {"class": 'm-NutritionTable__a-Headline'}):
         print(dt)
 
     # Setting all recipe information
