@@ -26,7 +26,7 @@ for page in pageTitleList:
     for num in range(1, lastPageNum + 1):
         allPages.append(page + "/p/" + str(num))
 
-for page in allPages[:5]:
+for page in allPages[:2]:
 
     page1 = requests.get(page)
 
@@ -39,6 +39,7 @@ for page in allPages[:5]:
         entry1 = (entry.find('a')["href"]).replace("//", "")
         newList.append(entry1)
 
+    # for index in range(0, len(newList)):
     for index in range(0, 1):
         recipe = Recipe()
         title = ""
@@ -68,21 +69,39 @@ for page in allPages[:5]:
 
         # Source
         try:
-            sourceFull = soup1.find("span", {"class": 'o-Attribution__a-Name'}).text.strip()
             if source == "":
+                sourceFull = soup1.find("span", {"class": 'o-Attribution__a-Name'}).text.strip()
                 source = sourceFull.split("of ")[1]
                 print("source: " + source)
         except IndexError:
-            print("index out of range")
+            print("source index out of range")
         except TypeError:
             print("source type error")
+        except AttributeError:
+            print("source attribute error")
 
+        try:
+            if source == "":
+                sourceFull = soup1.find("span", {"class": 'o-Attribution__a-Name'})
+                source = sourceFull.find("a").text
+                print("source: " + source)
+        except IndexError:
+            print("source index out of range")
+        except TypeError:
+            print("source type error")
+        except AttributeError:
+            print("source attribute error")
+
+        # Site Name
         try:
             if site_name == "":
                 site_name = soup1.find("meta", {"property": 'og:site_name'})["content"].strip()
                 print("site_name: " + site_name)
         except TypeError:
             print("site_name type error")
+
+        if source == "":
+            source = site_name
 
         try:
             if url == "":
@@ -106,7 +125,8 @@ for page in allPages[:5]:
         # Total time
         try:
             totalTitle = soup1.find("ul", {"class": 'o-RecipeInfo__m-Time'})
-            if totalTitle.find("span", {"class": 'm-RecipeInfo__a-Description--Total'}) is not None and total_time == "":
+            if totalTitle.find("span",
+                               {"class": 'm-RecipeInfo__a-Description--Total'}) is not None and total_time == "":
                 total_time = totalTitle.find("span", {"class": 'm-RecipeInfo__a-Description--Total'}).text.strip()
                 print("total time: " + total_time)
         except TypeError:
@@ -134,13 +154,15 @@ for page in allPages[:5]:
         ingredientInfo = soup1.find_all("span", {"class": 'o-Ingredients__a-Ingredient--CheckboxLabel'})
         for item in ingredientInfo:
             if item.text != "Deselect All":
-                ingredients.append(item.text)
+                ingredients.append(item.text.strip())
                 print("ingredient: " + item.text.strip())
+        ingredients.remove(ingredients[0])
 
         # Steps
         for li in soup1.find_all("li", {"class": 'o-Method__m-Step'}):
-            steps.append(li.text.lstrip().rstrip())
+            steps.append(li.text.strip())
             print("step: " + li.text.strip())
+        steps.remove(steps[0])
 
         # Nutrition
         for dl in soup1.find_all("dl", {"class": 'm-NutritionTable__a-Content'}):
@@ -194,6 +216,8 @@ for page in allPages[:5]:
         # Title of Recipe
         recipe.title = title
         # Source of Recipe
+        if source == "":
+            source = site_name
         recipe.source = source
         # Website Name
         recipe.site_name = site_name
@@ -214,10 +238,13 @@ for page in allPages[:5]:
         recipe.sodium = sodium
         recipe.cholesterol = cholesterol
         recipe.sugar = sugar
+        recipe.fiber = fiber
         recipe.protein = protein
         recipe.total_fat = total_fat
         recipe.saturated_fat = saturated_fat
         recipe.carbs = carbs
+        # Rating
+        recipe.rating = 0.0
         # Ingredients
         recipe.ingredients = ingredients
         # Steps
@@ -225,9 +252,52 @@ for page in allPages[:5]:
 
         fnList.append(recipe)
 
-with open('recipes.csv', 'w',) as csvfile:
+with open('recipes.csv', 'w', ) as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(['title', 'source', "site_name"])
+    writer.writerow([
+        'title',
+        'source',
+        'site_name',
+        'url',
+        'servings',
+        'image',
+        'rating',
+        'total_time',
+        'prep_time',
+        'cook_time',
+        'calories',
+        'total_fat',
+        'saturated_fat',
+        'carbs',
+        'fiber',
+        'sugar',
+        'protein',
+        'cholesterol',
+        'sodium',
+        'ingredients',
+        'steps'
+    ])
     for recipe in fnList:
-        print(recipe.title, recipe.source, recipe.site_name)
-        writer.writerow([recipe.title, recipe.source, recipe.site_name])
+        writer.writerow([
+            recipe.title,
+            recipe.source,
+            recipe.site_name,
+            recipe.url,
+            recipe.servings,
+            recipe.image,
+            recipe.rating,
+            recipe.total_time,
+            recipe.prep_time,
+            recipe.cook_time,
+            recipe.calories,
+            recipe.total_fat,
+            recipe.saturated_fat,
+            recipe.carbs,
+            recipe.fiber,
+            recipe.sugar,
+            recipe.protein,
+            recipe.cholesterol,
+            recipe.sodium,
+            recipe.ingredients,
+            recipe.steps
+        ])

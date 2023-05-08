@@ -1,15 +1,15 @@
 
 class Recipe:
-    title: str
-    source: str
-    site_name: str
-    url: str
-    servings: str
-    image: str
-    rating: float
-    total_time: str
-    prep_time: str
-    cook_time: str
+    title = ""
+    source = ""
+    site_name = ""
+    url = ""
+    servings = ""
+    image = ""
+    rating: float = 0.0
+    total_time = ""
+    prep_time = ""
+    cook_time = ""
     calories: int
     total_fat: int
     saturated_fat: int
