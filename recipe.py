@@ -6,7 +6,6 @@ class Recipe:
     url = ""
     servings = ""
     image = ""
-    rating: float = 0.0
     total_time = ""
     prep_time = ""
     cook_time = ""

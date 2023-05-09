@@ -60,7 +60,6 @@ for page in allPages[:2]:
         protein = None
         cholesterol = None  # mg
         sodium = None  # mg
-        # rating = float
         ingredients = [str]
         steps = [str]
 
@@ -133,21 +132,23 @@ for page in allPages[:2]:
             print("type error")
 
         for span in soup1.find_all("span", {"class": 'o-RecipeInfo__a-Headline'}):
+            text = span.find_next("span", {"class": 'o-RecipeInfo__a-Description'}).text.strip()
+
             # Servings
             if span.text.lower().__contains__("yield") and servings == "":
-                servings = span.find_next("span", {"class": 'o-RecipeInfo__a-Description'}).text.strip()
+                servings = text
                 print("servings: " + servings)
             # Prep Time
             if span.text.lower().__contains__("prep") and prep_time == "":
-                prep_time = span.find_next("span", {"class": 'o-RecipeInfo__a-Description'}).text.strip()
+                prep_time = text
                 print("prep_time: " + prep_time)
             # Cook Time
             if span.text.lower().__contains__("cook") and cook_time == "":
-                cook_time = span.find_next("span", {"class": 'o-RecipeInfo__a-Description'}).text.strip()
+                cook_time = text
                 print("cook_time: " + cook_time)
             # Total Time
             if span.text.lower().__contains__("total") and total_time == "":
-                total_time = span.find_next("span", {"class": 'o-RecipeInfo__a-Description'}).text.strip()
+                total_time = text
                 print("total_time: " + total_time)
 
         # Ingredients
@@ -243,8 +244,6 @@ for page in allPages[:2]:
         recipe.total_fat = total_fat
         recipe.saturated_fat = saturated_fat
         recipe.carbs = carbs
-        # Rating
-        recipe.rating = 0.0
         # Ingredients
         recipe.ingredients = ingredients
         # Steps
@@ -261,7 +260,6 @@ with open('recipes.csv', 'w', ) as csvfile:
         'url',
         'servings',
         'image',
-        'rating',
         'total_time',
         'prep_time',
         'cook_time',
@@ -285,7 +283,6 @@ with open('recipes.csv', 'w', ) as csvfile:
             recipe.url,
             recipe.servings,
             recipe.image,
-            recipe.rating,
             recipe.total_time,
             recipe.prep_time,
             recipe.cook_time,
