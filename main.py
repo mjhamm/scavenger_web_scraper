@@ -1,6 +1,9 @@
 import requests
 import csv
+
+import diets as dietInfo
 from recipe import Recipe
+from diets import DietType
 from bs4 import BeautifulSoup
 
 # Food Network
@@ -26,7 +29,8 @@ for page in pageTitleList:
     for num in range(1, lastPageNum + 1):
         allPages.append(page + "/p/" + str(num))
 
-for page in allPages[:2]:
+# Only scanning 20 recipes
+for page in allPages[:20]:
 
     page1 = requests.get(page)
 
@@ -62,6 +66,7 @@ for page in allPages[:2]:
         sodium = None  # mg
         ingredients = [str]
         steps = [str]
+        diets = [dietInfo.DietType]
 
         page = requests.get("https://" + newList[index])
         soup1 = BeautifulSoup(page.content, "html.parser")
@@ -159,6 +164,9 @@ for page in allPages[:2]:
                 print("ingredient: " + item.text.strip())
         ingredients.remove(ingredients[0])
 
+        if dietInfo.isDairyFree(ingredients):
+            diets.append(dietInfo.DietType.DAIRY_FREE.value)
+
         # Steps
         for li in soup1.find_all("li", {"class": 'o-Method__m-Step'}):
             steps.append(li.text.strip())
@@ -248,6 +256,8 @@ for page in allPages[:2]:
         recipe.ingredients = ingredients
         # Steps
         recipe.steps = steps
+        # Diets
+        recipe.diets = diets
 
         fnList.append(recipe)
 
@@ -273,7 +283,8 @@ with open('recipes.csv', 'w', ) as csvfile:
         'cholesterol',
         'sodium',
         'ingredients',
-        'steps'
+        'steps',
+        'diets'
     ])
     for recipe in fnList:
         writer.writerow([
@@ -296,5 +307,6 @@ with open('recipes.csv', 'w', ) as csvfile:
             recipe.cholesterol,
             recipe.sodium,
             recipe.ingredients,
-            recipe.steps
+            recipe.steps,
+            recipe.diets
         ])

@@ -1,3 +1,4 @@
+import diets
 
 class Recipe:
     title = ""
@@ -20,3 +21,4 @@ class Recipe:
     sodium: int
     ingredients: [str]
     steps: [str]
+    diets: [diets.DietType]
