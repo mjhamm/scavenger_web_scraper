@@ -64,9 +64,9 @@ for page in allPages[:20]:
         protein = None
         cholesterol = None  # mg
         sodium = None  # mg
-        ingredients = [str]
-        steps = [str]
-        diets = [dietInfo.DietType]
+        ingredients = []
+        steps = []
+        diets = []
 
         page = requests.get("https://" + newList[index])
         soup1 = BeautifulSoup(page.content, "html.parser")
@@ -162,16 +162,19 @@ for page in allPages[:20]:
             if item.text != "Deselect All":
                 ingredients.append(item.text.strip())
                 print("ingredient: " + item.text.strip())
-        ingredients.remove(ingredients[0])
 
+        # Dairy Free
         if dietInfo.isDairyFree(ingredients):
             diets.append(dietInfo.DietType.DAIRY_FREE.value)
+
+        # Nut Free
+        if dietInfo.isNutFree(ingredients):
+            diets.append(dietInfo.DietType.NUT_FREE.value)
 
         # Steps
         for li in soup1.find_all("li", {"class": 'o-Method__m-Step'}):
             steps.append(li.text.strip())
             print("step: " + li.text.strip())
-        steps.remove(steps[0])
 
         # Nutrition
         for dl in soup1.find_all("dl", {"class": 'm-NutritionTable__a-Content'}):
@@ -213,13 +216,29 @@ for page in allPages[:20]:
                 # Cholesterol
                 if dt.next.strip().lower().__contains__("cholesterol") and cholesterol is None:
                     cholesterol_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
-                    cholesterol = cholesterol_full.split("mg")[0].strip()
+                    cholesterol = cholesterol_full.split("m")[0].strip()
                     print("cholesterol: " + cholesterol)
                 # Sodium
                 if dt.next.strip().lower().__contains__("sodium") and sodium is None:
                     sodium_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
-                    sodium = sodium_full.split("mg")[0].strip()
+                    sodium = sodium_full.split("m")[0].strip()
                     print("sodium: " + sodium)
+
+        # Low Carb
+        if dietInfo.isLowCarb(carbs):
+            diets.append(dietInfo.DietType.LOW_CARB.value)
+
+        # Low Fat
+        if dietInfo.isLowFat(calories, total_fat):
+            diets.append(dietInfo.DietType.LOW_FAT.value)
+
+        # Low Sodium
+        if dietInfo.isLowSodium(sodium):
+            diets.append(dietInfo.DietType.LOW_SODIUM.value)
+
+        # High Protein
+        if dietInfo.isHighProtein(calories, protein):
+            diets.append(dietInfo.DietType.HIGH_PROTEIN.value)
 
         # Setting all recipe information
         # Title of Recipe

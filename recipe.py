@@ -1,4 +1,4 @@
-import diets
+
 
 class Recipe:
     title = ""
@@ -10,15 +10,15 @@ class Recipe:
     total_time = ""
     prep_time = ""
     cook_time = ""
-    calories: int
-    total_fat: int
-    saturated_fat: int
-    carbs: int
-    fiber: int
-    sugar: int
-    protein: int
-    cholesterol: int
-    sodium: int
-    ingredients: [str]
-    steps: [str]
-    diets: [diets.DietType]
+    calories: None
+    total_fat: None
+    saturated_fat: None
+    carbs: None
+    fiber: None
+    sugar: None
+    protein: None
+    cholesterol: None
+    sodium: None
+    ingredients: []
+    steps: []
+    diets: []
