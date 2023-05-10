@@ -1,9 +1,8 @@
 import requests
 import csv
 
-import diets as dietInfo
+import diets as DietInfo
 from recipe import Recipe
-from diets import DietType
 from bs4 import BeautifulSoup
 
 # Food Network
@@ -164,24 +163,24 @@ for page in allPages[:20]:
                 print("ingredient: " + item.text.strip())
 
         # Dairy Free
-        if dietInfo.isDairyFree(ingredients):
-            diets.append(dietInfo.DietType.DAIRY_FREE.value)
+        if DietInfo.isDairyFree(ingredients):
+            diets.append(DietInfo.DietType.DAIRY_FREE.value)
 
         # Vegan
-        if dietInfo.isVegan(ingredients):
-            diets.append(dietInfo.DietType.VEGAN.value)
+        if DietInfo.isVegan(ingredients):
+            diets.append(DietInfo.DietType.VEGAN.value)
 
         # Gluten Free
-        if dietInfo.isGlutenFree(ingredients):
-            diets.append(dietInfo.DietType.GLUTEN_FREE.value)
+        if DietInfo.isGlutenFree(ingredients):
+            diets.append(DietInfo.DietType.GLUTEN_FREE.value)
 
         # Vegetarian
-        if dietInfo.isVegetarian(ingredients):
-            diets.append(dietInfo.DietType.VEGETARIAN.value)
+        if DietInfo.isVegetarian(ingredients):
+            diets.append(DietInfo.DietType.VEGETARIAN.value)
 
         # Nut Free
-        if dietInfo.isNutFree(ingredients):
-            diets.append(dietInfo.DietType.NUT_FREE.value)
+        if DietInfo.isNutFree(ingredients):
+            diets.append(DietInfo.DietType.NUT_FREE.value)
 
         # Steps
         for li in soup1.find_all("li", {"class": 'o-Method__m-Step'}):
@@ -237,20 +236,20 @@ for page in allPages[:20]:
                     print("sodium: " + sodium)
 
         # Low Carb
-        if dietInfo.isLowCarb(carbs):
-            diets.append(dietInfo.DietType.LOW_CARB.value)
+        if DietInfo.isLowCarb(carbs):
+            diets.append(DietInfo.DietType.LOW_CARB.value)
 
         # Low Fat
-        if dietInfo.isLowFat(calories, total_fat):
-            diets.append(dietInfo.DietType.LOW_FAT.value)
+        if DietInfo.isLowFat(calories, total_fat):
+            diets.append(DietInfo.DietType.LOW_FAT.value)
 
         # Low Sodium
-        if dietInfo.isLowSodium(sodium):
-            diets.append(dietInfo.DietType.LOW_SODIUM.value)
+        if DietInfo.isLowSodium(sodium):
+            diets.append(DietInfo.DietType.LOW_SODIUM.value)
 
         # High Protein
-        if dietInfo.isHighProtein(calories, protein):
-            diets.append(dietInfo.DietType.HIGH_PROTEIN.value)
+        if DietInfo.isHighProtein(calories, protein):
+            diets.append(DietInfo.DietType.HIGH_PROTEIN.value)
 
         # Setting all recipe information
         # Title of Recipe
