@@ -33,6 +33,16 @@ nutIngredients = [
     'pignolias', 'pistachio nuts', 'walnuts', 'Peanuts'
 ]
 
+veganIngredients = [
+    'Beef', 'pork', 'lamb', 'meat', 'Chicken', 'duck', 'veal', 'venison', 'ox', 'poultry', 'turkey', 'Fish',
+    'shellfish', 'crabs', 'clams', 'mussels', 'scallop', 'scallops', 'Mayonnaise', 'honey', 'anchovies', 'shrimp',
+    'squid', 'calamari', 'crab', 'lobster', 'lobsters', 'goose', 'quail', 'gelatin', 'bee pollen', 'royal jelly',
+    'marshmallow', 'marshmallows', 'fillet', 'fillets', 'bone', 'bones', 'mackerel', 'Catfish', 'pike', 'Bluegill',
+    'eels', 'Eel', 'Barramundi', 'Goldfish', 'Tuna', 'perch', 'Gadidae', 'Walleye', 'Arctic char', 'Bowfin', 'Smelt',
+    'Burbot', 'Guppy', 'dogfish', 'Bonefish', 'seabass', 'cod', 'Muskellunge', 'Whiting', 'Stickleback', 'pickerel',
+    'Haddock', 'trout', 'salmon', 'bullhead', 'sunfish', 'bass'
+]
+
 
 def isHighProtein(calories, protein) -> bool:
     try:
@@ -56,6 +66,15 @@ def isLowSodium(sodium) -> bool:
         return False
     except ValueError:
         return False
+
+
+def isVegan(ingredients: List[str]) -> bool:
+    veganIngredients.extend(dairyIngredients)
+    for ingredient in ingredients:
+        for vegan in veganIngredients:
+            if vegan.lower() in ingredient.lower():
+                return False
+    return True
 
 
 def isLowFat(calories, fat) -> bool:

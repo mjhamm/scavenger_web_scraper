@@ -167,6 +167,10 @@ for page in allPages[:20]:
         if dietInfo.isDairyFree(ingredients):
             diets.append(dietInfo.DietType.DAIRY_FREE.value)
 
+        # Vegan
+        if dietInfo.isVegan(ingredients):
+            diets.append(dietInfo.DietType.VEGAN.value)
+
         # Nut Free
         if dietInfo.isNutFree(ingredients):
             diets.append(dietInfo.DietType.NUT_FREE.value)
