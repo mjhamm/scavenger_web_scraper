@@ -1,6 +1,7 @@
 
 
 class Recipe:
+    id: int = -1
     title = ""
     source = ""
     site_name = ""
