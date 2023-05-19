@@ -11,15 +11,15 @@ class Recipe:
     total_time = ""
     prep_time = ""
     cook_time = ""
-    calories: None
-    total_fat: None
-    saturated_fat: None
-    carbs: None
-    fiber: None
-    sugar: None
-    protein: None
-    cholesterol: None
-    sodium: None
+    calories: int = -1
+    total_fat: int = -1
+    saturated_fat: int = -1
+    carbs: int = -1
+    fiber: int = -1
+    sugar: int = -1
+    protein: int = -1
+    cholesterol: int = -1
+    sodium: int = -1
     ingredients: []
     steps: []
     diets: []
