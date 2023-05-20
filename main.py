@@ -1,10 +1,6 @@
 import requests
-import csv
 import pymysql
-import os
-import boto3
 import json
-from botocore.exceptions import ClientError
 import diets as DietInfo
 from recipe import Recipe
 from bs4 import BeautifulSoup
@@ -28,6 +24,18 @@ cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cho
          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
     """
 
+insertIngredientSQL = """INSERT INTO ingredients (recipe_id, ingredient)
+         VALUES (%s, %s) 
+    """
+
+insertStepSQL = """INSERT INTO steps (recipe_id, step)
+         VALUES (%s, %s) 
+    """
+
+insertDietSQL = """INSERT INTO diets (recipe_id, diet)
+         VALUES (%s, %s) 
+    """
+
 cursor = connection.cursor()
 
 cursor.execute("select count(*) from recipes")
@@ -35,8 +43,6 @@ idCount: int = cursor.fetchone()[0]
 
 # Food Network
 baseFoodNetworkURL = "https://www.foodnetwork.com/recipes/recipes-a-z"
-
-# idCount: int = recipe_table.item_count
 
 # All Recipes
 # baseAllRecipesURL = "https://www.allrecipes.com/recipes-a-z-6735880"
@@ -77,7 +83,7 @@ if idCount < allPages.__sizeof__():
             newList.append(entry1)
 
         # for index in range(0, len(newList)):
-        for index in range(0, len(newList)):
+        for index in range(0, 1):
             recipe = Recipe()
             title = ""
             total_time = ""
@@ -224,12 +230,15 @@ if idCount < allPages.__sizeof__():
                 print("step: " + li.text.strip())
 
             # Nutrition
-            # TODO: Strip out only numbers
             for dl in soup1.find_all("dl", {"class": 'm-NutritionTable__a-Content'}):
                 for dt in dl.find_all_next("dt", {"class": 'm-NutritionTable__a-Headline'}):
                     # Calories
-                    if dt.next.strip().lower().__contains__("calories") and calories == -1:
-                        calories = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+                    if dt.next.strip().lower().__contains__("cal") and calories == -1:
+                        caloriesFull = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+                        if caloriesFull.__contains__(" "):
+                            calories = caloriesFull.split(" ")[0].strip()
+                        else:
+                            calories = caloriesFull
                         print("calories: " + calories)
                     # Total Fat
                     if dt.next.strip().lower().__contains__("total fat") and total_fat == -1:
@@ -238,7 +247,8 @@ if idCount < allPages.__sizeof__():
                         print("total fat: " + total_fat)
                     # Saturated Fat
                     if dt.next.strip().lower().__contains__("saturated fat") and saturated_fat == -1:
-                        saturated_fat_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+                        saturated_fat_full = dt.find_next("dd",
+                                                          {"class": 'm-NutritionTable__a-Description'}).next.strip()
                         saturated_fat = saturated_fat_full.split("g")[0].strip()
                         print("saturated fat: " + saturated_fat)
                     # Carbohydrates
@@ -290,7 +300,7 @@ if idCount < allPages.__sizeof__():
 
             # Setting all recipe information
             # ID
-            # recipe.id = idCount
+            recipe.id = idCount + 1
             # Title of Recipe
             recipe.title = title
             # Source of Recipe
@@ -332,88 +342,63 @@ if idCount < allPages.__sizeof__():
             print(recipe_json)
             datadict = json.loads(recipe_json)
 
-            # idCount += 1
+            if recipe.id == -1:
+                print("recipe title = " + recipe.title + " | id == -1")
+            else:
+                cursor.execute(
+                    insertRecipeSQL,
+                    [recipe.title,
+                     recipe.source,
+                     recipe.site_name,
+                     recipe.url,
+                     recipe.servings,
+                     recipe.image,
+                     recipe.total_time,
+                     recipe.prep_time,
+                     recipe.cook_time,
+                     recipe.calories,
+                     recipe.total_fat,
+                     recipe.saturated_fat,
+                     recipe.carbs,
+                     recipe.fiber,
+                     recipe.sugar,
+                     recipe.protein,
+                     recipe.cholesterol,
+                     recipe.sodium]
+                )
+                cursor.connection.commit()
 
-            # if recipe.id == -1:
-            #     print("id == -1")
-            # else:
-            cursor.execute(
-                insertRecipeSQL,
-                [recipe.title,
-                 recipe.source,
-                 recipe.site_name,
-                 recipe.url,
-                 recipe.servings,
-                 recipe.image,
-                 recipe.total_time,
-                 recipe.prep_time,
-                 recipe.cook_time,
-                 recipe.calories,
-                 recipe.total_fat,
-                 recipe.saturated_fat,
-                 recipe.carbs,
-                 recipe.fiber,
-                 recipe.sugar,
-                 recipe.protein,
-                 recipe.cholesterol,
-                 recipe.sodium]
-            )
-            cursor.connection.commit()
+                for ingredient in ingredients:
+                    cursor.execute(
+                        insertIngredientSQL,
+                        [recipe.id,
+                         ingredient]
+                    )
+                    cursor.connection.commit()
 
+                for step in steps:
+                    cursor.execute(
+                        insertStepSQL,
+                        [recipe.id,
+                         step]
+                    )
+                    cursor.connection.commit()
+
+                for diet in diets:
+                    cursor.execute(
+                        insertDietSQL,
+                        [recipe.id,
+                         diet]
+                    )
+                    cursor.connection.commit()
+
+                idCount += 1
             fnList.append(recipe)
     else:
         print("idCount ( " + str(idCount) + " )" + " is larger than the number of pages to find ( " +
               str(allPages.__sizeof__()) + " )")
 
-# with open('recipes.csv', 'w', ) as csvfile:
-#     writer = csv.writer(csvfile)
-#     writer.writerow([
-#         'title',
-#         'source',
-#         'site_name',
-#         'url',
-#         'servings',
-#         'image',
-#         'total_time',
-#         'prep_time',
-#         'cook_time',
-#         'calories',
-#         'total_fat',
-#         'saturated_fat',
-#         'carbs',
-#         'fiber',
-#         'sugar',
-#         'protein',
-#         'cholesterol',
-#         'sodium',
-#         'ingredients',
-#         'steps',
-#         'diets'
-#     ])
-#     for recipe in fnList:
-#         writer.writerow([
-#             recipe.title,
-#             recipe.source,
-#             recipe.site_name,
-#             recipe.url,
-#             recipe.servings,
-#             recipe.image,
-#             recipe.total_time,
-#             recipe.prep_time,
-#             recipe.cook_time,
-#             recipe.calories,
-#             recipe.total_fat,
-#             recipe.saturated_fat,
-#             recipe.carbs,
-#             recipe.fiber,
-#             recipe.sugar,
-#             recipe.protein,
-#             recipe.cholesterol,
-#             recipe.sodium,
-#             recipe.ingredients,
-#             recipe.steps,
-#             recipe.diets
-#         ])
+# ALL RECIPES #
 
 # basePage = requests.get(baseAllRecipesURL)
 # soup1 = BeautifulSoup(basePage.content, "html.parser")
@@ -432,9 +417,13 @@ if idCount < allPages.__sizeof__():
 #
 #     newList = []
 #
-#     for link in soup.find_all("a", {"class": 'comp card--image-top mntl-card-list-items mntl-document-card mntl-card card card--no-image'}):
+#     for link in soup.find_all("a", {
+#       "class": 'comp card--image-top mntl-card-list-items mntl-document-card mntl-card card card--no-image'
+#     }):
 #         newList.append(link['href'])
-#     for link in soup.find_all("a", {"class": 'comp mntl-card-list-items mntl-document-card mntl-card card card--no-image'}):
+#     for link in soup.find_all("a", {
+#       "class": 'comp mntl-card-list-items mntl-document-card mntl-card card card--no-image'
+#       }):
 #         newList.append(link['href'])
 #
 #     # Individual urls
@@ -443,53 +432,3 @@ if idCount < allPages.__sizeof__():
 #         soup = BeautifulSoup(page.content, "html.parser")
 #
 #         print(soup.prettify())
-
-# with open('recipes.csv', 'w', ) as csvfile:
-#     writer = csv.writer(csvfile)
-#     writer.writerow([
-#         'title',
-#         'source',
-#         'site_name',
-#         'url',
-#         'servings',
-#         'image',
-#         'total_time',
-#         'prep_time',
-#         'cook_time',
-#         'calories',
-#         'total_fat',
-#         'saturated_fat',
-#         'carbs',
-#         'fiber',
-#         'sugar',
-#         'protein',
-#         'cholesterol',
-#         'sodium',
-#         'ingredients',
-#         'steps',
-#         'diets'
-#     ])
-#     for recipe in bbcList:
-#         writer.writerow([
-#             recipe.title,
-#             recipe.source,
-#             recipe.site_name,
-#             recipe.url,
-#             recipe.servings,
-#             recipe.image,
-#             recipe.total_time,
-#             recipe.prep_time,
-#             recipe.cook_time,
-#             recipe.calories,
-#             recipe.total_fat,
-#             recipe.saturated_fat,
-#             recipe.carbs,
-#             recipe.fiber,
-#             recipe.sugar,
-#             recipe.protein,
-#             recipe.cholesterol,
-#             recipe.sodium,
-#             recipe.ingredients,
-#             recipe.steps,
-#             recipe.diets
-#         ])
