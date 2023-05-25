@@ -342,8 +342,9 @@ if idCount < allPages.__sizeof__():
             print(recipe_json)
             datadict = json.loads(recipe_json)
 
-            if recipe.id == -1:
-                print("recipe title = " + recipe.title + " | id == -1")
+            if recipe.id == -1 or calories == -1 or sodium == -1 or cholesterol == -1 or sugar == -1 or fiber == -1 or \
+                    protein == -1 or total_fat == -1 or saturated_fat == -1 or carbs == -1:
+                print("something is -1. Skipping the recipe")
             else:
                 cursor.execute(
                     insertRecipeSQL,
