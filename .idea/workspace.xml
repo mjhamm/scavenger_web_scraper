@@ -4,21 +4,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d55c434e-13b6-4aba-b594-5ae84f69d64d" name="Changes" comment="" />
+    <list default="true" id="d55c434e-13b6-4aba-b594-5ae84f69d64d" name="Changes" comment="Updated to not add recipe if nutrition information is missing">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recipe.py" beforeDir="false" afterPath="$PROJECT_DIR$/recipe.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="2NbQR7MPmvVq1PbD18zfctlTRBf" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;TODO_SCOPE&quot;: &quot;All Places&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;Python&quot;
+    ]
   }
 }</component>
   <component name="RunManager">
@@ -53,6 +68,151 @@
       <option name="presentableId" value="Default" />
       <updated>1679930290934</updated>
     </task>
+    <task id="LOCAL-00001" summary="Updating information for recipes from FoodNetwork">
+      <created>1682996335858</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1682996335858</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Updating information for recipes from FoodNetwork">
+      <created>1683083971985</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1683083971985</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Adding additional parameters to recipe class">
+      <created>1683169747767</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1683169747768</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Adding additional parameters to recipe class">
+      <created>1683251742298</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1683251742298</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added nutrition information to recipe">
+      <created>1683317083041</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1683317083041</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Created loop to get all pages on site and export all data to csv">
+      <created>1683430914375</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1683430914375</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Created loop to get all pages on site and export all data to csv">
+      <created>1683516727447</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1683516727447</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Updated removing rating">
+      <created>1683594834861</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1683594834861</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Adding dairy free diets information">
+      <created>1683668549559</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1683668549559</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Adding more diets">
+      <created>1683685208304</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1683685208305</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Adding Vegan">
+      <created>1683724162436</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1683724162436</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Updated all diets">
+      <created>1683745127126</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1683745127126</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Changed import">
+      <created>1683745207704</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1683745207704</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Adding allrecipes">
+      <created>1683774032876</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1683774032876</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Added logic to connect to DynamoDB">
+      <created>1684249613598</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1684249613598</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Added logic to connect to MySQL and insert recipes to DB">
+      <created>1684531936089</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1684531936089</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Fixed TODO's updated tables related to diets, ingredients, steps and recipes">
+      <created>1684607433356</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1684607433356</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Updated to not add recipe if nutrition information is missing">
+      <created>1684978638311</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1684978638311</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Updating information for recipes from FoodNetwork" />
+    <MESSAGE value="Adding additional parameters to recipe class" />
+    <MESSAGE value="Added nutrition information to recipe" />
+    <MESSAGE value="Created loop to get all pages on site and export all data to csv" />
+    <MESSAGE value="Updated removing rating" />
+    <MESSAGE value="Adding dairy free diets information" />
+    <MESSAGE value="Adding more diets" />
+    <MESSAGE value="Adding Vegan" />
+    <MESSAGE value="Updated all diets" />
+    <MESSAGE value="Changed import" />
+    <MESSAGE value="Adding allrecipes" />
+    <MESSAGE value="Added logic to connect to DynamoDB" />
+    <MESSAGE value="Added logic to connect to MySQL and insert recipes to DB" />
+    <MESSAGE value="Fixed TODO's updated tables related to diets, ingredients, steps and recipes" />
+    <MESSAGE value="Updated to not add recipe if nutrition information is missing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated to not add recipe if nutrition information is missing" />
   </component>
 </project>

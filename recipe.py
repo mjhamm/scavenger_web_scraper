@@ -20,6 +20,6 @@ class Recipe:
     protein: int = -1
     cholesterol: int = -1
     sodium: int = -1
-    ingredients: []
+    ingredients: {}
     steps: []
     diets: []

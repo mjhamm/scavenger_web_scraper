@@ -4,6 +4,7 @@ import json
 import diets as DietInfo
 from recipe import Recipe
 from bs4 import BeautifulSoup
+from ingredient_parser import parse_ingredient
 
 ENDPOINT = 'scavenger.cafbhjmtde7x.us-east-2.rds.amazonaws.com'
 PORT = '3306'
@@ -11,6 +12,11 @@ USER = 'admin'
 PASSWORD = '$94RdsPass394'
 REGION = "us-east-2c"
 DBNAME = 'scavenger'
+
+
+def parse_ingredient_string(ingredient_string) -> dict:
+    return parse_ingredient(ingredient_string)
+
 
 connection = pymysql.connect(
     host=ENDPOINT,
@@ -24,9 +30,8 @@ cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cho
          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
     """
 
-insertIngredientSQL = """INSERT INTO ingredients (recipe_id, ingredient)
-         VALUES (%s, %s) 
-    """
+insertIngredientSQL = """INSERT INTO ingredients (recipe_id, ingredient_sentence, ingredient, quantity, unit, 
+comment, other) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
 
 insertStepSQL = """INSERT INTO steps (recipe_id, step)
          VALUES (%s, %s) 
@@ -104,6 +109,7 @@ if idCount < allPages.__sizeof__():
             cholesterol = -1  # mg
             sodium = -1  # mg
             ingredients = []
+            ingredient_strings = []
             steps = []
             diets = []
 
@@ -201,27 +207,28 @@ if idCount < allPages.__sizeof__():
             ingredientInfo = soup1.find_all("span", {"class": 'o-Ingredients__a-Ingredient--CheckboxLabel'})
             for item in ingredientInfo:
                 if item.text != "Deselect All":
-                    ingredients.append(item.text.strip())
+                    ingredient_strings.append(item.text.strip())
+                    ingredients.append(parse_ingredient_string(item.text.strip()))
                     print("ingredient: " + item.text.strip())
 
             # Dairy Free
-            if DietInfo.isDairyFree(ingredients):
+            if DietInfo.isDairyFree(ingredient_strings):
                 diets.append(DietInfo.DietType.DAIRY_FREE.value)
 
             # Vegan
-            if DietInfo.isVegan(ingredients):
+            if DietInfo.isVegan(ingredient_strings):
                 diets.append(DietInfo.DietType.VEGAN.value)
 
             # Gluten Free
-            if DietInfo.isGlutenFree(ingredients):
+            if DietInfo.isGlutenFree(ingredient_strings):
                 diets.append(DietInfo.DietType.GLUTEN_FREE.value)
 
             # Vegetarian
-            if DietInfo.isVegetarian(ingredients):
+            if DietInfo.isVegetarian(ingredient_strings):
                 diets.append(DietInfo.DietType.VEGETARIAN.value)
 
             # Nut Free
-            if DietInfo.isNutFree(ingredients):
+            if DietInfo.isNutFree(ingredient_strings):
                 diets.append(DietInfo.DietType.NUT_FREE.value)
 
             # Steps
@@ -247,8 +254,8 @@ if idCount < allPages.__sizeof__():
                         print("total fat: " + total_fat)
                     # Saturated Fat
                     if dt.next.strip().lower().__contains__("saturated fat") and saturated_fat == -1:
-                        saturated_fat_full = dt.find_next("dd",
-                                                          {"class": 'm-NutritionTable__a-Description'}).next.strip()
+                        saturated_fat_full = dt.find_next(
+                            "dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
                         saturated_fat = saturated_fat_full.split("g")[0].strip()
                         print("saturated fat: " + saturated_fat)
                     # Carbohydrates
@@ -342,8 +349,7 @@ if idCount < allPages.__sizeof__():
             print(recipe_json)
             datadict = json.loads(recipe_json)
 
-            if recipe.id == -1 or calories == -1 or sodium == -1 or cholesterol == -1 or sugar == -1 or fiber == -1 or \
-                    protein == -1 or total_fat == -1 or saturated_fat == -1 or carbs == -1:
+            if recipe.id == -1 or calories == -1:
                 print("something is -1. Skipping the recipe")
             else:
                 cursor.execute(
@@ -373,7 +379,13 @@ if idCount < allPages.__sizeof__():
                     cursor.execute(
                         insertIngredientSQL,
                         [recipe.id,
-                         ingredient]
+                         ingredient["sentence"],
+                         ingredient["name"],
+                         ingredient["quantity"],
+                         ingredient["unit"],
+                         ingredient["comment"],
+                         ingredient["other"]
+                         ]
                     )
                     cursor.connection.commit()
 
@@ -395,9 +407,11 @@ if idCount < allPages.__sizeof__():
 
                 idCount += 1
             fnList.append(recipe)
-    else:
-        print("idCount ( " + str(idCount) + " )" + " is larger than the number of pages to find ( " +
-              str(allPages.__sizeof__()) + " )")
+
+else:
+    print("idCount ( " + str(idCount) + " )" + " is larger than the number of pages to find ( " +
+          str(allPages.__sizeof__()) + " )")
+
 
 # ALL RECIPES #
 
