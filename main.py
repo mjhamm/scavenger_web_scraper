@@ -15,7 +15,20 @@ DBNAME = 'scavenger'
 
 
 def parse_ingredient_string(ingredient_string) -> dict:
-    return parse_ingredient(ingredient_string)
+    parsed_ingredient = parse_ingredient(ingredient_string)
+    quantity = parsed_ingredient["quantity"]
+    unit_type = parsed_ingredient["unit"]
+    if quantity == 1:
+        if unit_type.endswith("s"):
+            return {
+                'sentence': parsed_ingredient["sentence"],
+                'name': parsed_ingredient["name"],
+                'quantity': parsed_ingredient["quantity"],
+                'unit': parsed_ingredient["unit"][:-1],
+                'comment': parsed_ingredient["comment"],
+                'other': parsed_ingredient["other"]
+            }
+    return parsed_ingredient
 
 
 connection = pymysql.connect(
