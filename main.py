@@ -87,7 +87,7 @@ for page in pageTitleList:
 if idCount < allPages.__sizeof__():
 
     # Only scanning 10 recipes
-    for page in allPages[idCount: 20]:
+    for page in allPages[idCount: 30]:
 
         page1 = requests.get(page)
 
