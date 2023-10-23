@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d55c434e-13b6-4aba-b594-5ae84f69d64d" name="Changes" comment="Updated to not add recipe if nutrition information is missing">
+    <list default="true" id="d55c434e-13b6-4aba-b594-5ae84f69d64d" name="Changes" comment="adding categories.py">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recipe.py" beforeDir="false" afterPath="$PROJECT_DIR$/recipe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,6 +17,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="2NbQR7MPmvVq1PbD18zfctlTRBf" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -194,7 +198,28 @@
       <option name="project" value="LOCAL" />
       <updated>1684978638311</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Added additional parsing logic for ingredient string">
+      <created>1686710446497</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1686710446497</updated>
+    </task>
+    <task id="LOCAL-00020" summary="removed &quot;s&quot; from end of unit of ingredient if the quantity is only 1">
+      <created>1686928737340</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1686928737340</updated>
+    </task>
+    <task id="LOCAL-00021" summary="adding categories.py">
+      <created>1687570597691</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1687570597691</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -213,6 +238,9 @@
     <MESSAGE value="Added logic to connect to MySQL and insert recipes to DB" />
     <MESSAGE value="Fixed TODO's updated tables related to diets, ingredients, steps and recipes" />
     <MESSAGE value="Updated to not add recipe if nutrition information is missing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated to not add recipe if nutrition information is missing" />
+    <MESSAGE value="Added additional parsing logic for ingredient string" />
+    <MESSAGE value="removed &quot;s&quot; from end of unit of ingredient if the quantity is only 1" />
+    <MESSAGE value="adding categories.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="adding categories.py" />
   </component>
 </project>

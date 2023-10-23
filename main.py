@@ -13,6 +13,15 @@ PASSWORD = '$94RdsPass394'
 REGION = "us-east-2c"
 DBNAME = 'scavenger'
 
+# Daily Value Constants
+DV_CARBS = 275
+DV_FAT = 78
+DV_PROTEIN = 50
+DV_SODIUM = 2300
+DV_SUGARS = 50
+
+# % DV Formula = PDV=TC/DV*100
+
 
 def parse_ingredient_string(ingredient_string) -> dict:
     parsed_ingredient = parse_ingredient(ingredient_string)
@@ -39,8 +48,8 @@ connection = pymysql.connect(
 )
 
 insertRecipeSQL = """INSERT INTO recipes (title, source, site_name, url, servings, image, total_time, prep_time,
-cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cholesterol, sodium)
-         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cholesterol, sodium, dv_carbs)
+         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
     """
 
 insertIngredientSQL = """INSERT INTO ingredients (recipe_id, ingredient_sentence, ingredient, quantity, unit, 
@@ -116,6 +125,7 @@ if idCount < allPages.__sizeof__():
             total_fat = -1
             saturated_fat = -1
             carbs = -1
+            dv_carbs = -1
             fiber = -1
             sugar = -1
             protein = -1
@@ -276,6 +286,7 @@ if idCount < allPages.__sizeof__():
                         carbs_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
                         carbs = carbs_full.split("g")[0].strip()
                         print("carbs: " + carbs)
+                        dv_carbs = int(carbs)/DV_CARBS * 100
                     # Dietary Fiber
                     if dt.next.strip().lower().__contains__("dietary fiber") and fiber == -1:
                         fiber_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
@@ -351,6 +362,7 @@ if idCount < allPages.__sizeof__():
             recipe.total_fat = total_fat
             recipe.saturated_fat = saturated_fat
             recipe.carbs = carbs
+            recipe.dv_carbs = dv_carbs
             # Ingredients
             recipe.ingredients = ingredients
             # Steps

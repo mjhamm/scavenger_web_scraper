@@ -15,6 +15,7 @@ class Recipe:
     total_fat: int = -1
     saturated_fat: int = -1
     carbs: int = -1
+    dv_carbs: int = -1
     fiber: int = -1
     sugar: int = -1
     protein: int = -1
