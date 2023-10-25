@@ -18,7 +18,11 @@ DV_CARBS = 275
 DV_FAT = 78
 DV_PROTEIN = 50
 DV_SODIUM = 2300
-DV_SUGARS = 50
+DV_SUGAR = 50
+DV_FIBER = 28
+DV_SATURATED_FAT = 20
+DV_CHOLESTEROL = 300
+
 
 # % DV Formula = PDV=TC/DV*100
 
@@ -48,8 +52,14 @@ connection = pymysql.connect(
 )
 
 insertRecipeSQL = """INSERT INTO recipes (title, source, site_name, url, servings, image, total_time, prep_time,
-cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cholesterol, sodium, dv_carbs)
+cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cholesterol, sodium)
          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+    """
+
+insertNutritionInfoSQL = """INSERT INTO nutrition_info (recipe_id, calories, fat, fat_dv, saturated_fat, 
+saturated_fat_dv, carbs, carbs_dv, fiber, fiber_dv, sugar, sugar_dv, protein, protein_dv, cholesterol, cholesterol_dv,
+ sodium, sodium_dv)
+         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
     """
 
 insertIngredientSQL = """INSERT INTO ingredients (recipe_id, ingredient_sentence, ingredient, quantity, unit, 
@@ -125,7 +135,6 @@ if idCount < allPages.__sizeof__():
             total_fat = -1
             saturated_fat = -1
             carbs = -1
-            dv_carbs = -1
             fiber = -1
             sugar = -1
             protein = -1
@@ -286,7 +295,7 @@ if idCount < allPages.__sizeof__():
                         carbs_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
                         carbs = carbs_full.split("g")[0].strip()
                         print("carbs: " + carbs)
-                        dv_carbs = int(carbs)/DV_CARBS * 100
+                        dv_carbs = int(carbs) / DV_CARBS * 100
                     # Dietary Fiber
                     if dt.next.strip().lower().__contains__("dietary fiber") and fiber == -1:
                         fiber_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
@@ -400,6 +409,38 @@ if idCount < allPages.__sizeof__():
                 )
                 cursor.connection.commit()
 
+                carbs_dv = (recipe.carbs / DV_CARBS) * 100
+                fiber_dv = (recipe.fiber / DV_FIBER) * 100
+                cholesterol_dv = (recipe.cholesterol / DV_CHOLESTEROL) * 100
+                protein_dv = (recipe.protein / DV_PROTEIN) * 100
+                saturated_fat_dv = (recipe.saturated_fat / DV_SATURATED_FAT) * 100
+                sodium_dv = (recipe.sodium / DV_SODIUM) * 100
+                sugar_dv = (recipe.sugar / DV_CHOLESTEROL) * 100
+                fat_dv = (recipe.total_fat / DV_PROTEIN) * 100
+
+                cursor.execute(
+                    insertNutritionInfoSQL,
+                    [recipe.calories,
+                     recipe.total_fat,
+                     fat_dv,
+                     recipe.saturated_fat,
+                     saturated_fat_dv,
+                     recipe.carbs,
+                     carbs_dv,
+                     recipe.fiber,
+                     fiber_dv,
+                     recipe.sugar,
+                     sugar_dv,
+                     recipe.protein,
+                     protein_dv,
+                     recipe.cholesterol,
+                     cholesterol_dv,
+                     recipe.sodium,
+                     sodium_dv
+                     ]
+                )
+                cursor.connection.commit()
+
                 for ingredient in ingredients:
                     cursor.execute(
                         insertIngredientSQL,
@@ -436,7 +477,6 @@ if idCount < allPages.__sizeof__():
 else:
     print("idCount ( " + str(idCount) + " )" + " is larger than the number of pages to find ( " +
           str(allPages.__sizeof__()) + " )")
-
 
 # ALL RECIPES #
 
