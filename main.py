@@ -295,7 +295,6 @@ if idCount < allPages.__sizeof__():
                         carbs_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
                         carbs = carbs_full.split("g")[0].strip()
                         print("carbs: " + carbs)
-                        dv_carbs = int(carbs) / DV_CARBS * 100
                     # Dietary Fiber
                     if dt.next.strip().lower().__contains__("dietary fiber") and fiber == -1:
                         fiber_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
@@ -364,14 +363,29 @@ if idCount < allPages.__sizeof__():
             # Nutrition Info
             recipe.calories = calories
             recipe.sodium = sodium
+            if sodium != -1:
+                recipe.dv_sodium = (int(sodium) / DV_SODIUM) * 100
             recipe.cholesterol = cholesterol
+            if cholesterol != -1:
+                recipe.dv_cholesterol = (int(cholesterol) / DV_CHOLESTEROL) * 100
             recipe.sugar = sugar
+            if sugar != -1:
+                recipe.dv_sugar = (int(sugar) / DV_SUGAR) * 100
             recipe.fiber = fiber
+            if fiber != -1:
+                recipe.dv_fiber = (int(fiber) / DV_FIBER) * 100
             recipe.protein = protein
+            if protein != -1:
+                recipe.dv_protein = (int(protein) / DV_PROTEIN) * 100
             recipe.total_fat = total_fat
+            if total_fat != -1:
+                recipe.dv_total_fat = (int(total_fat) / DV_FAT) * 100
             recipe.saturated_fat = saturated_fat
+            if saturated_fat != -1:
+                recipe.dv_saturated_fat = (int(saturated_fat) / DV_SATURATED_FAT) * 100
             recipe.carbs = carbs
-            recipe.dv_carbs = dv_carbs
+            if carbs != -1:
+                recipe.dv_carbs = (int(carbs) / DV_CARBS) * 100
             # Ingredients
             recipe.ingredients = ingredients
             # Steps
