@@ -50,35 +50,35 @@
 #     database=DBNAME
 # )
 
-insertRecipeSQL = """INSERT INTO recipes (title, source, site_name, url, servings, image, total_time, prep_time,
-cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cholesterol, sodium)
-         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
-    """
+# insertRecipeSQL = """INSERT INTO recipes (title, source, site_name, url, servings, image, total_time, prep_time,
+# cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cholesterol, sodium)
+#          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+#     """
 
-insertNutritionInfoSQL = """INSERT INTO nutrition_info (recipe_id, calories, fat, fat_dv, saturated_fat, 
-saturated_fat_dv, carbs, carbs_dv, fiber, fiber_dv, sugar, sugar_dv, protein, protein_dv, cholesterol, cholesterol_dv,
- sodium, sodium_dv)
-         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
-    """
+# insertNutritionInfoSQL = """INSERT INTO nutrition_info (recipe_id, calories, fat, fat_dv, saturated_fat, 
+# saturated_fat_dv, carbs, carbs_dv, fiber, fiber_dv, sugar, sugar_dv, protein, protein_dv, cholesterol, cholesterol_dv,
+#  sodium, sodium_dv)
+#          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+#     """
 
-insertIngredientSQL = """INSERT INTO ingredients (recipe_id, ingredient_sentence, ingredient, quantity, unit, 
-comment, other) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+# insertIngredientSQL = """INSERT INTO ingredients (recipe_id, ingredient_sentence, ingredient, quantity, unit, 
+# comment, other) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
 
-insertStepSQL = """INSERT INTO steps (recipe_id, step)
-         VALUES (%s, %s) 
-    """
+# insertStepSQL = """INSERT INTO steps (recipe_id, step)
+#          VALUES (%s, %s) 
+#     """
 
-insertDietSQL = """INSERT INTO diets (recipe_id, diet)
-         VALUES (%s, %s) 
-    """
+# insertDietSQL = """INSERT INTO diets (recipe_id, diet)
+#          VALUES (%s, %s) 
+#     """
 
-cursor = connection.cursor()
+# cursor = connection.cursor()
 
-cursor.execute("select count(*) from recipes")
-idCount: int = cursor.fetchone()[0]
+# cursor.execute("select count(*) from recipes")
+# idCount: int = cursor.fetchone()[0]
 
 # Food Network
-baseFoodNetworkURL = "https://www.foodnetwork.com/recipes/recipes-a-z"
+# baseFoodNetworkURL = "https://www.foodnetwork.com/recipes/recipes-a-z"
 
 # All Recipes
 # baseAllRecipesURL = "https://www.allrecipes.com/recipes-a-z-6735880"
