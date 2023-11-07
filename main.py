@@ -1,55 +1,54 @@
-import requests
-import pymysql
-import json
-import diets as DietInfo
-from recipe import Recipe
-from bs4 import BeautifulSoup
-from ingredient_parser import parse_ingredient
+# import requests
+# import pymysql
+# import json
+# import diets as DietInfo
+# from recipe import Recipe
+# from bs4 import BeautifulSoup
+# from ingredient_parser import parse_ingredient
 
-ENDPOINT = 'scavenger.cafbhjmtde7x.us-east-2.rds.amazonaws.com'
-PORT = '3306'
-USER = 'admin'
-PASSWORD = '$94RdsPass394'
-REGION = "us-east-2c"
-DBNAME = 'scavenger'
+# ENDPOINT = 'scavenger.cafbhjmtde7x.us-east-2.rds.amazonaws.com'
+# PORT = '3306'
+# USER = 'admin'
+# PASSWORD = '$94RdsPass394'
+# REGION = "us-east-2c"
+# DBNAME = 'scavenger'
 
-# Daily Value Constants
-DV_CARBS = 275
-DV_FAT = 78
-DV_PROTEIN = 50
-DV_SODIUM = 2300
-DV_SUGAR = 50
-DV_FIBER = 28
-DV_SATURATED_FAT = 20
-DV_CHOLESTEROL = 300
+# # Daily Value Constants
+# DV_CARBS = 275
+# DV_FAT = 78
+# DV_PROTEIN = 50
+# DV_SODIUM = 2300
+# DV_SUGAR = 50
+# DV_FIBER = 28
+# DV_SATURATED_FAT = 20
+# DV_CHOLESTEROL = 300
 
 
 # % DV Formula = PDV=TC/DV*100
 
 
-def parse_ingredient_string(ingredient_string) -> dict:
-    parsed_ingredient = parse_ingredient(ingredient_string)
-    quantity = parsed_ingredient["quantity"]
-    unit_type = parsed_ingredient["unit"]
-    if quantity == 1:
-        if unit_type.endswith("s"):
-            return {
-                'sentence': parsed_ingredient["sentence"],
-                'name': parsed_ingredient["name"],
-                'quantity': parsed_ingredient["quantity"],
-                'unit': parsed_ingredient["unit"][:-1],
-                'comment': parsed_ingredient["comment"],
-                'other': parsed_ingredient["other"]
-            }
-    return parsed_ingredient
+# def parse_ingredient_string(ingredient_string) -> dict:
+#     parsed_ingredient = parse_ingredient(ingredient_string)
+#     quantity = parsed_ingredient["quantity"]
+#     unit_type = parsed_ingredient["unit"]
+#     if quantity == 1:
+#         if unit_type.endswith("s"):
+#             return {
+#                 'sentence': parsed_ingredient["sentence"],
+#                 'name': parsed_ingredient["name"],
+#                 'quantity': parsed_ingredient["quantity"],
+#                 'unit': parsed_ingredient["unit"][:-1],
+#                 'comment': parsed_ingredient["comment"],
+#                 'other': parsed_ingredient["other"]
+#             }
+#     return parsed_ingredient
 
-
-connection = pymysql.connect(
-    host=ENDPOINT,
-    user=USER,
-    password=PASSWORD,
-    database=DBNAME
-)
+# connection = pymysql.connect(
+#     host=ENDPOINT,
+#     user=USER,
+#     password=PASSWORD,
+#     database=DBNAME
+# )
 
 insertRecipeSQL = """INSERT INTO recipes (title, source, site_name, url, servings, image, total_time, prep_time,
 cook_time, calories, total_fat, saturated_fat, carbs, fiber, sugar, protein, cholesterol, sodium)
