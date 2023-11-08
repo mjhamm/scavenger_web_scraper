@@ -4,6 +4,7 @@ import json
 import diets as DietInfo
 from recipe import Recipe
 from bs4 import BeautifulSoup
+from decimal import Decimal
 from ingredient_parser import parse_ingredient
 
 # Daily Value Constants
@@ -26,26 +27,59 @@ baseFoodNetworkURL = "https://www.foodnetwork.com/recipes/recipes-a-z"
 
 client = boto3.client('dynamodb','us-east-2', aws_access_key_id = 'AKIAUQ5RSVGJSYOLOFNE',
               aws_secret_access_key = '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')
+
 response = client.describe_table(TableName='recipe')
 idCount = response['Table']['ItemCount']
 
 # Parses Ingredient String into separate readable parts
 def parse_ingredient_string(ingredient_string) -> dict:
     parsed_ingredient = parse_ingredient(ingredient_string)
-    print(parse_ingredient)
-    quantity = parsed_ingredient["quantity"]
-    unit_type = parsed_ingredient["unit"]
-    if quantity == 1:
-        if unit_type.endswith("s"):
-            return {
-                'sentence': parsed_ingredient["sentence"],
-                'name': parsed_ingredient["name"],
-                'quantity': parsed_ingredient["quantity"],
-                'unit': parsed_ingredient["unit"][:-1],
-                'comment': parsed_ingredient["comment"],
-                'other': parsed_ingredient["other"]
-            }
-    return parsed_ingredient
+    print(parsed_ingredient)
+
+    if len(parsed_ingredient.amount) != 0: 
+        quantity = parsed_ingredient.amount[0].quantity
+        unit = parsed_ingredient.amount[0].unit
+    else:
+        quantity = 0
+        unit = ""
+
+    if quantity == 1 and unit.endswith('s'):
+        unit = unit[:-1]
+
+    if parsed_ingredient.sentence is not None:
+        sentence = parsed_ingredient.sentence
+    else:
+        sentence = ''
+
+    if parsed_ingredient.name is not None:
+        name = parsed_ingredient.name.text
+    else:
+        name = ''
+
+    if parsed_ingredient.comment is not None:
+        comment = parsed_ingredient.comment.text
+    else:
+        comment = ''
+
+    if parsed_ingredient.preparation is not None:
+        prep = parsed_ingredient.preparation.text
+    else:
+        prep = ''
+
+    if parsed_ingredient.other is not None:
+        other = parsed_ingredient.other.text
+    else:
+        other = ''
+
+    return {
+        'sentence': sentence,
+        'name': name,
+        'quantity': quantity,
+        'unit': unit,
+        'comment': comment,
+        'preparation': prep,
+        'other': other
+    }
 
 # Add item to Recipe Table
 def put_item(id: int, recipe: Recipe):
@@ -104,6 +138,7 @@ for page in pageTitleList:
     lastPageNum = int(nums[len(nums) - 2].text.strip())
     for num in range(1, lastPageNum + 1):
         allPages.append(page + "/p/" + str(num))
+
 if idCount < allPages.__sizeof__():
 
     # Only scanning 10 recipes
@@ -202,9 +237,12 @@ if idCount < allPages.__sizeof__():
                 print("image type error")
 
             # Title
-            if title == "":
-                title = soup1.find("span", {"class": 'o-AssetTitle__a-HeadlineText'}).text.strip()
-                print("title: " + title)
+            try:
+                if title == "":
+                    title = soup1.find("span", {"class": 'o-AssetTitle__a-HeadlineText'}).text.strip()
+                    print("title: " + title)
+            except TypeError:
+                print("title type error")
 
             # Total time
             try:
@@ -366,28 +404,28 @@ if idCount < allPages.__sizeof__():
             recipe.calories = calories
             recipe.sodium = sodium
             if sodium != -1:
-                recipe.dv_sodium = (int(sodium) / DV_SODIUM) * 100
+                recipe.dv_sodium = int((int(sodium) / DV_SODIUM) * 100)
             recipe.cholesterol = cholesterol
             if cholesterol != -1:
-                recipe.dv_cholesterol = (int(cholesterol) / DV_CHOLESTEROL) * 100
+                recipe.dv_cholesterol = int((int(cholesterol) / DV_CHOLESTEROL) * 100)
             recipe.sugar = sugar
             if sugar != -1:
-                recipe.dv_sugar = (int(sugar) / DV_SUGAR) * 100
+                recipe.dv_sugar = int((int(sugar) / DV_SUGAR) * 100)
             recipe.fiber = fiber
             if fiber != -1:
-                recipe.dv_fiber = (int(fiber) / DV_FIBER) * 100
+                recipe.dv_fiber = int((int(fiber) / DV_FIBER) * 100)
             recipe.protein = protein
             if protein != -1:
-                recipe.dv_protein = (int(protein) / DV_PROTEIN) * 100
+                recipe.dv_protein = int((int(protein) / DV_PROTEIN) * 100)
             recipe.total_fat = total_fat
             if total_fat != -1:
-                recipe.dv_total_fat = (int(total_fat) / DV_FAT) * 100
+                recipe.dv_total_fat = int((int(total_fat) / DV_FAT) * 100)
             recipe.saturated_fat = saturated_fat
             if saturated_fat != -1:
-                recipe.dv_saturated_fat = (int(saturated_fat) / DV_SATURATED_FAT) * 100
+                recipe.dv_saturated_fat = int((int(saturated_fat) / DV_SATURATED_FAT) * 100)
             recipe.carbs = carbs
             if carbs != -1:
-                recipe.dv_carbs = (int(carbs) / DV_CARBS) * 100
+                recipe.dv_carbs = int((int(carbs) / DV_CARBS) * 100)
             # Ingredients
             recipe.ingredients = ingredients
             # Steps
@@ -397,7 +435,7 @@ if idCount < allPages.__sizeof__():
 
             recipe_json = json.dumps(recipe.__dict__)
             print(recipe_json)
-            datadict = json.loads(recipe_json)
+            datadict = json.loads(recipe_json, parse_float=Decimal)
 
             if recipe.id == -1 or calories == -1:
                 print("something is -1. Skipping the recipe")
