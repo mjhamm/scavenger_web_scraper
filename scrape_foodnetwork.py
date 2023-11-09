@@ -14,13 +14,10 @@ dynamodb = boto3.resource(service_name = 'dynamodb',region_name = REGION_NAME,
               aws_access_key_id = AWS_ACCESS_KEY,
               aws_secret_access_key = AWS_SECRET_KEY)
 
-#recipe_table = dynamodb.Table(RECIPE_TABLE)
 recipe_stats_table = dynamodb.Table(RECIPE_STATS_TABLE)
 
 client = boto3.client('dynamodb','us-east-2', aws_access_key_id = AWS_ACCESS_KEY,
               aws_secret_access_key = AWS_SECRET_KEY)
-
-#recipe_table = client.Table(RECIPE_TABLE)
 
 response = client.describe_table(TableName=RECIPE_TABLE)
 idCount = response['Table']['ItemCount']
@@ -164,8 +161,6 @@ if idCount < allPages.__sizeof__():
 
             page = requests.get("https://" + newList[index])
             soup1 = BeautifulSoup(page.content, "html.parser")
-
-            # print("id: " + str(idCount))
 
             # Source
             try:
@@ -417,15 +412,12 @@ if idCount < allPages.__sizeof__():
             recipe.diets = diets
 
             recipe_json = recipe.__dict__
-            #print(recipe_json)
-            #datadict = json.loads(recipe_json, parse_float=Decimal)
 
             if recipe.recipe_id == -1 or calories == -1:
                 print("something is -1. Skipping the recipe")
             else:
                 #put_recipe_stats(idCount)
                 put_recipe_json(recipe_json)
-                #put_recipe(idCount, recipe)
 
                 idCount += 1
 
