@@ -1,35 +1,27 @@
 import boto3
 import requests
 import json
+from constants import *
 import diets as DietInfo
 from recipe import Recipe
 from bs4 import BeautifulSoup
 from decimal import Decimal
 from ingredient_parser import parse_ingredient
 
-# Daily Value Constants
-DV_CARBS = 275
-DV_FAT = 78
-DV_PROTEIN = 50
-DV_SODIUM = 2300
-DV_SUGAR = 50
-DV_FIBER = 28
-DV_SATURATED_FAT = 20
-DV_CHOLESTEROL = 300
+dynamodb = boto3.resource(service_name = 'dynamodb',region_name = REGION_NAME,
+              aws_access_key_id = AWS_ACCESS_KEY,
+              aws_secret_access_key = AWS_SECRET_KEY)
 
-dynamodb = boto3.resource(service_name = 'dynamodb',region_name = 'us-east-2',
-              aws_access_key_id = 'AKIAUQ5RSVGJSYOLOFNE',
-              aws_secret_access_key = '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')
+recipe_table = dynamodb.Table(RECIPE_TABLE)
+recipe_stats_table = dynamodb.Table(RECIPE_STATS_TABLE)
 
-recipe_table = dynamodb.Table('recipe')
+client = boto3.client('dynamodb','us-east-2', aws_access_key_id = AWS_ACCESS_KEY,
+              aws_secret_access_key = AWS_SECRET_KEY)
 
-baseFoodNetworkURL = "https://www.foodnetwork.com/recipes/recipes-a-z"
-
-client = boto3.client('dynamodb','us-east-2', aws_access_key_id = 'AKIAUQ5RSVGJSYOLOFNE',
-              aws_secret_access_key = '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')
-
-response = client.describe_table(TableName='recipe')
+response = client.describe_table(TableName=RECIPE_TABLE)
 idCount = response['Table']['ItemCount']
+
+# -- FUNCTIONS -- #
 
 # Parses Ingredient String into separate readable parts
 def parse_ingredient_string(ingredient_string) -> dict:
@@ -82,7 +74,7 @@ def parse_ingredient_string(ingredient_string) -> dict:
     }
 
 # Add item to Recipe Table
-def put_item(id: int, recipe: Recipe):
+def put_recipe(id: int, recipe: Recipe):
     recipe_table.put_item(
         Item={
             "recipe_id": id,
@@ -119,7 +111,9 @@ def put_item(id: int, recipe: Recipe):
         }
     )
 
-basePage = requests.get(baseFoodNetworkURL)
+#--------------------------------------------
+
+basePage = requests.get(FOOD_NETWORK_URL)
 pageTitleList = []
 allPages = []
 fnList: [str] = []
@@ -129,7 +123,7 @@ soup1 = BeautifulSoup(basePage.content, "html.parser")
 pages = soup1.find("ul", 'o-IndexPagination__m-List')
 pageList = pages.find_all("li", {"class": 'o-IndexPagination__a-ListItem'})
 for entry in pageList:
-    pageTitleList.append(baseFoodNetworkURL + "/" + entry.text.lower().strip())
+    pageTitleList.append(FOOD_NETWORK_URL + "/" + entry.text.lower().strip())
 
 for page in pageTitleList:
     pageRequest = requests.get(page)
@@ -440,7 +434,7 @@ if idCount < allPages.__sizeof__():
             if recipe.id == -1 or calories == -1:
                 print("something is -1. Skipping the recipe")
             else:
-                put_item(idCount, recipe)
+                put_recipe(idCount, recipe)
 
                 idCount += 1
 
