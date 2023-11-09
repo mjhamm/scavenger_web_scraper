@@ -4,6 +4,7 @@ import json
 from constants import *
 import diets as DietInfo
 from recipe import Recipe
+from recipe_stat import RecipeStat
 from bs4 import BeautifulSoup
 from decimal import Decimal
 from ingredient_parser import parse_ingredient
@@ -108,6 +109,18 @@ def put_recipe(id: int, recipe: Recipe):
             "cholesterol_dv": recipe.dv_cholesterol,
             "sodium": recipe.sodium,
             "sodium_dv": recipe.dv_sodium,
+        }
+    )
+
+# Add item to Recipe Stats Table
+def put_recipe_stats(id: int):
+    recipe_stats_table.put_item(
+        Item={
+            "recipe_id": id,
+            "views": 0,
+            "likes": 0,
+            "rating": Decimal(0),
+            "comments": []
         }
     )
 
@@ -434,6 +447,7 @@ if idCount < allPages.__sizeof__():
             if recipe.id == -1 or calories == -1:
                 print("something is -1. Skipping the recipe")
             else:
+                put_recipe_stats(idCount)
                 put_recipe(idCount, recipe)
 
                 idCount += 1
