@@ -1,7 +1,7 @@
 
 
 class Recipe:
-    id: int = -1
+    recipe_id: int = -1
     title = ""
     source = ""
     site_name = ""
@@ -13,21 +13,21 @@ class Recipe:
     cook_time = ""
     calories: int = -1
     total_fat: int = -1
-    dv_total_fat: int = -1
+    total_fat_dv: int = -1
     saturated_fat: int = -1
-    dv_saturated_fat: int = -1
+    saturated_fat_dv: int = -1
     carbs: int = -1
-    dv_carbs: int = -1
+    carbs_dv: int = -1
     fiber: int = -1
-    dv_fiber: int = -1
+    fiber_dv: int = -1
     sugar: int = -1
-    dv_sugar: int = -1
+    sugar_dv: int = -1
     protein: int = -1
-    dv_protein: int = -1
+    protein_dv: int = -1
     cholesterol: int = -1
-    dv_cholesterol: int = -1
+    cholesterol_dv: int = -1
     sodium: int = -1
-    dv_sodium: int = -1
+    sodium_dv: int = -1
     ingredients: {}
     steps: []
     diets: []

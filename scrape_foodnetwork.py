@@ -7,20 +7,24 @@ from recipe import Recipe
 from recipe_stat import RecipeStat
 from bs4 import BeautifulSoup
 from decimal import Decimal
+from utils import *
 from ingredient_parser import parse_ingredient
 
 dynamodb = boto3.resource(service_name = 'dynamodb',region_name = REGION_NAME,
               aws_access_key_id = AWS_ACCESS_KEY,
               aws_secret_access_key = AWS_SECRET_KEY)
 
-recipe_table = dynamodb.Table(RECIPE_TABLE)
+#recipe_table = dynamodb.Table(RECIPE_TABLE)
 recipe_stats_table = dynamodb.Table(RECIPE_STATS_TABLE)
 
 client = boto3.client('dynamodb','us-east-2', aws_access_key_id = AWS_ACCESS_KEY,
               aws_secret_access_key = AWS_SECRET_KEY)
 
+#recipe_table = client.Table(RECIPE_TABLE)
+
 response = client.describe_table(TableName=RECIPE_TABLE)
 idCount = response['Table']['ItemCount']
+print(idCount)
 
 # -- FUNCTIONS -- #
 
@@ -74,42 +78,12 @@ def parse_ingredient_string(ingredient_string) -> dict:
         'other': other
     }
 
-# Add item to Recipe Table
-def put_recipe(id: int, recipe: Recipe):
-    recipe_table.put_item(
-        Item={
-            "recipe_id": id,
-            "name": recipe.title,
-            "source": recipe.source,
-            "image": recipe.image,
-            "url": recipe.url,
-            "servings": recipe.servings,
-            "site_name": recipe.site_name,
-            "total_time": recipe.total_time,
-            "prep_time": recipe.prep_time,
-            "cook_time": recipe.cook_time,
-            "ingredients": recipe.ingredients,
-            "steps": recipe.steps,
-            "diets": recipe.diets,
-            "calories": recipe.calories,
-            "carbs": recipe.carbs,
-            "carbs_dv": recipe.dv_carbs,
-            "total_fat": recipe.total_fat,
-            "total_fat_dv": recipe.dv_total_fat,
-            "saturated_fat": recipe.saturated_fat,
-            "saturated_fat_dv": recipe.dv_saturated_fat,
-            "fiber": recipe.fiber,
-            "fiber_dv": recipe.dv_fiber,
-            "sugar": recipe.sugar,
-            "sugar_dv": recipe.dv_sugar,
-            "protein": recipe.protein,
-            "protein_dv": recipe.dv_protein,
-            "fiber_dv": recipe.dv_fiber,
-            "cholesterol": recipe.cholesterol,
-            "cholesterol_dv": recipe.dv_cholesterol,
-            "sodium": recipe.sodium,
-            "sodium_dv": recipe.dv_sodium,
-        }
+def put_recipe_json(dictionary):
+    obj = python_obj_to_dynamo_obj(dictionary)
+    print(json.dumps(obj))
+    client.put_item(
+        TableName = RECIPE_TABLE,
+        Item=obj
     )
 
 # Add item to Recipe Stats Table
@@ -149,7 +123,7 @@ for page in pageTitleList:
 if idCount < allPages.__sizeof__():
 
     # Only scanning 10 recipes
-    for page in allPages[idCount: 30]:
+    for page in allPages[idCount: 40]:
 
         page1 = requests.get(page)
 
@@ -386,7 +360,7 @@ if idCount < allPages.__sizeof__():
 
             # Setting all recipe information
             # ID
-            recipe.id = idCount + 1
+            recipe.recipe_id = idCount + 1
             # Title of Recipe
             recipe.title = title
             # Source of Recipe
@@ -408,31 +382,33 @@ if idCount < allPages.__sizeof__():
             # Cook Time
             recipe.cook_time = cook_time
             # Nutrition Info
-            recipe.calories = calories
-            recipe.sodium = sodium
+            recipe.calories = int(calories)
+
+            recipe.sodium = int(sodium)
             if sodium != -1:
                 recipe.dv_sodium = int((int(sodium) / DV_SODIUM) * 100)
-            recipe.cholesterol = cholesterol
+            
+            recipe.cholesterol = int(cholesterol)
             if cholesterol != -1:
-                recipe.dv_cholesterol = int((int(cholesterol) / DV_CHOLESTEROL) * 100)
-            recipe.sugar = sugar
+                recipe.cholesterol_dv = int((int(cholesterol) / DV_CHOLESTEROL) * 100)
+            recipe.sugar = int(sugar)
             if sugar != -1:
-                recipe.dv_sugar = int((int(sugar) / DV_SUGAR) * 100)
-            recipe.fiber = fiber
+                recipe.sugar_dv = int((int(sugar) / DV_SUGAR) * 100)
+            recipe.fiber = int(fiber)
             if fiber != -1:
-                recipe.dv_fiber = int((int(fiber) / DV_FIBER) * 100)
-            recipe.protein = protein
+                recipe.fiber_dv = int((int(fiber) / DV_FIBER) * 100)
+            recipe.protein = int(protein)
             if protein != -1:
-                recipe.dv_protein = int((int(protein) / DV_PROTEIN) * 100)
-            recipe.total_fat = total_fat
+                recipe.protein_dv = int((int(protein) / DV_PROTEIN) * 100)
+            recipe.total_fat = int(total_fat)
             if total_fat != -1:
-                recipe.dv_total_fat = int((int(total_fat) / DV_FAT) * 100)
-            recipe.saturated_fat = saturated_fat
+                recipe.total_fat_dv = int((int(total_fat) / DV_FAT) * 100)
+            recipe.saturated_fat = int(saturated_fat)
             if saturated_fat != -1:
-                recipe.dv_saturated_fat = int((int(saturated_fat) / DV_SATURATED_FAT) * 100)
-            recipe.carbs = carbs
+                recipe.saturated_fat_dv = int((int(saturated_fat) / DV_SATURATED_FAT) * 100)
+            recipe.carbs = int(carbs)
             if carbs != -1:
-                recipe.dv_carbs = int((int(carbs) / DV_CARBS) * 100)
+                recipe.carbs_dv = int((int(carbs) / DV_CARBS) * 100)
             # Ingredients
             recipe.ingredients = ingredients
             # Steps
@@ -440,15 +416,16 @@ if idCount < allPages.__sizeof__():
             # Diets
             recipe.diets = diets
 
-            recipe_json = json.dumps(recipe.__dict__)
-            print(recipe_json)
-            datadict = json.loads(recipe_json, parse_float=Decimal)
+            recipe_json = recipe.__dict__
+            #print(recipe_json)
+            #datadict = json.loads(recipe_json, parse_float=Decimal)
 
-            if recipe.id == -1 or calories == -1:
+            if recipe.recipe_id == -1 or calories == -1:
                 print("something is -1. Skipping the recipe")
             else:
-                put_recipe_stats(idCount)
-                put_recipe(idCount, recipe)
+                #put_recipe_stats(idCount)
+                put_recipe_json(recipe_json)
+                #put_recipe(idCount, recipe)
 
                 idCount += 1
 
