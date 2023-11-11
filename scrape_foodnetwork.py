@@ -38,7 +38,7 @@ def parse_ingredient_string(ingredient_string) -> dict:
 
         unit = parsed_ingredient.amount[0].unit
     else:
-        quantity = 0
+        quantity = "0"
         unit = ""
 
     if quantity == 1 and unit.endswith('s'):
