@@ -372,8 +372,6 @@ if idCount < allPages.__sizeof__():
             recipe.cook_time = cook_time
             # Nutrition Info
             recipe.calories = int(calories)
-            if calories != -1:
-                recipe.calories_dv = int((int(calories) / DV_CALORIES) * 100)
 
             recipe.sodium = int(sodium)
             if sodium != -1:
