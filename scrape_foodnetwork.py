@@ -375,7 +375,7 @@ if idCount < allPages.__sizeof__():
 
             recipe.sodium = int(sodium)
             if sodium != -1:
-                recipe.dv_sodium = int((int(sodium) / DV_SODIUM) * 100)
+                recipe.sodium_dv = int((int(sodium) / DV_SODIUM) * 100)
             
             recipe.cholesterol = int(cholesterol)
             if cholesterol != -1:
