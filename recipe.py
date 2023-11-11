@@ -12,6 +12,7 @@ class Recipe:
     prep_time = ""
     cook_time = ""
     calories: int = -1
+    calories_dv: int = -1
     total_fat: int = -1
     total_fat_dv: int = -1
     saturated_fat: int = -1
