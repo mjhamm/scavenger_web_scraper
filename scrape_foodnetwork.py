@@ -14,14 +14,11 @@ dynamodb = boto3.resource(service_name = 'dynamodb',region_name = REGION_NAME,
               aws_access_key_id = AWS_ACCESS_KEY,
               aws_secret_access_key = AWS_SECRET_KEY)
 
-recipe_stats_table = dynamodb.Table(RECIPE_STATS_TABLE)
-
 client = boto3.client('dynamodb','us-east-2', aws_access_key_id = AWS_ACCESS_KEY,
               aws_secret_access_key = AWS_SECRET_KEY)
 
 response = client.describe_table(TableName=RECIPE_TABLE)
-idCount = response['Table']['ItemCount']
-print(idCount)
+idCount = 0#response['Table']['ItemCount']
 
 # -- FUNCTIONS -- #
 
@@ -30,8 +27,15 @@ def parse_ingredient_string(ingredient_string) -> dict:
     parsed_ingredient = parse_ingredient(ingredient_string)
     print(parsed_ingredient)
 
-    if len(parsed_ingredient.amount) != 0: 
+    if len(parsed_ingredient.amount) != 0:
+
         quantity = parsed_ingredient.amount[0].quantity
+        if (quantity.__contains__('.')):
+            if (quantity.startswith('0')):
+                quantity = dec_to_proper_frac(Decimal(checkStringContainsDecimal(quantity))).split('0')[1].strip()
+            else:
+                quantity = dec_to_proper_frac(Decimal(checkStringContainsDecimal(quantity)))
+
         unit = parsed_ingredient.amount[0].unit
     else:
         quantity = 0
@@ -57,6 +61,8 @@ def parse_ingredient_string(ingredient_string) -> dict:
 
     if parsed_ingredient.preparation is not None:
         prep = parsed_ingredient.preparation.text
+        if (doesStringContainDecimal):
+            prep = convert_decimals_to_fractions(prep)
     else:
         prep = ''
 
@@ -81,18 +87,6 @@ def put_recipe_json(dictionary):
     client.put_item(
         TableName = RECIPE_TABLE,
         Item=obj
-    )
-
-# Add item to Recipe Stats Table
-def put_recipe_stats(id: int):
-    recipe_stats_table.put_item(
-        Item={
-            "recipe_id": id,
-            "views": 0,
-            "likes": 0,
-            "rating": Decimal(0),
-            "comments": []
-        }
     )
 
 #--------------------------------------------
@@ -120,7 +114,7 @@ for page in pageTitleList:
 if idCount < allPages.__sizeof__():
 
     # Only scanning 10 recipes
-    for page in allPages[idCount: 40]:
+    for page in allPages[idCount: 1]:
 
         page1 = requests.get(page)
 
@@ -416,7 +410,6 @@ if idCount < allPages.__sizeof__():
             if recipe.recipe_id == -1 or calories == -1:
                 print("something is -1. Skipping the recipe")
             else:
-                #put_recipe_stats(idCount)
                 put_recipe_json(recipe_json)
 
                 idCount += 1
