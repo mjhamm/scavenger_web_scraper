@@ -395,9 +395,9 @@ if idCount < allPages.__sizeof__():
             recipe.saturated_fat = int(saturated_fat)
             if saturated_fat != -1:
                 recipe.saturated_fat_dv = int((int(saturated_fat) / DV_SATURATED_FAT) * 100)
-            recipe.carbs = int(carbs)
+            recipe.carbohydrates = int(carbs)
             if carbs != -1:
-                recipe.carbs_dv = int((int(carbs) / DV_CARBS) * 100)
+                recipe.carbohydrates_dv = int((int(carbs) / DV_CARBS) * 100)
             # Ingredients
             recipe.ingredients = ingredients
             # Steps
