@@ -1,5 +1,6 @@
 import boto3
 import requests
+import pymysql
 import json
 from constants import *
 import diets as DietInfo
@@ -10,15 +11,21 @@ from decimal import Decimal
 from utils import *
 from ingredient_parser import parse_ingredient
 
-dynamodb = boto3.resource(service_name = 'dynamodb',region_name = REGION_NAME,
-              aws_access_key_id = AWS_ACCESS_KEY,
-              aws_secret_access_key = AWS_SECRET_KEY)
+client = boto3.client('rds', region_name = REGION_NAME, aws_access_key_id = AWS_ACCESS_KEY, aws_secret_access_key = AWS_SECRET_KEY)
 
-client = boto3.client('dynamodb','us-east-2', aws_access_key_id = AWS_ACCESS_KEY,
-              aws_secret_access_key = AWS_SECRET_KEY)
+connection = pymysql.connect(
+    host=ENDPOINT,
+    user=USER,
+    password=PASSWORD,
+    database=DBNAME
+)
 
-response = client.describe_table(TableName=RECIPE_TABLE)
-idCount = 0#response['Table']['ItemCount']
+cursor = connection.cursor()
+
+cursor.execute("select count(*) from recipe")
+#idCount: int = cursor.fetchone()[0]
+
+idCount = 0
 
 # -- FUNCTIONS -- #
 
@@ -81,13 +88,90 @@ def parse_ingredient_string(ingredient_string) -> dict:
         'other': other
     }
 
-def put_recipe_json(dictionary):
-    obj = python_obj_to_dynamo_obj(dictionary)
-    print(json.dumps(obj))
-    client.put_item(
-        TableName = RECIPE_TABLE,
-        Item=obj
+def put_recipe(recipe):
+    cursor.execute(
+        insertRecipeSQL,
+        [
+            recipe.title,
+            recipe.source,
+            recipe.site_name,
+            recipe.url,
+            recipe.servings,
+            recipe.image,
+            recipe.total_time,
+            recipe.prep_time,
+            recipe.cook_time,
+            recipe.calories
+        ]
     )
+    cursor.connection.commit()
+
+    cursor.execute(
+        insertNutritionInfoSQL,
+        [
+            recipe.recipe_id,
+            recipe.calories,
+            recipe.total_fat,
+            recipe.total_fat_dv,
+            recipe.saturated_fat,
+            recipe.saturated_fat_dv,
+            recipe.carbohydrates,
+            recipe.carbohydrates_dv,
+            recipe.fiber,
+            recipe.fiber_dv,
+            recipe.sugar,
+            recipe.sugar_dv,
+            recipe.protein,
+            recipe.protein_dv,
+            recipe.cholesterol,
+            recipe.cholesterol_dv,
+            recipe.sodium,
+            recipe.sodium_dv
+        ]
+    )
+    cursor.connection.commit()
+
+    for ingredient in ingredients:
+        cursor.execute(
+            insertIngredientSQL,
+            [
+                recipe.recipe_id,
+                ingredient["sentence"],
+                ingredient["name"],
+                ingredient["quantity"],
+                ingredient["unit"],
+                ingredient["comment"],
+                ingredient["other"],
+                ingredient["preparation"]
+            ]
+        )
+        cursor.connection.commit()
+
+    for step in steps:
+        cursor.execute(
+            insertStepSQL,
+            [
+                recipe.recipe_id,
+                step
+            ]
+        )
+        cursor.connection.commit()
+
+    for diet in diets:
+        cursor.execute(
+            insertDietSQL,
+            [
+                recipe.recipe_id,
+                diet
+            ]
+        )
+        cursor.connection.commit()
+    # obj = python_obj_to_dynamo_obj(dictionary)
+    # print(json.dumps(obj))
+    # client.put_item(
+    #     TableName = RECIPE_TABLE,
+    #     Item=obj
+    # )
 
 #--------------------------------------------
 
@@ -405,13 +489,10 @@ if idCount < allPages.__sizeof__():
             # Diets
             recipe.diets = diets
 
-            recipe_json = recipe.__dict__
-
             if recipe.recipe_id == -1 or calories == -1:
                 print("something is -1. Skipping the recipe")
             else:
-                put_recipe_json(recipe_json)
-
+                put_recipe(recipe)
                 idCount += 1
 
 else:
