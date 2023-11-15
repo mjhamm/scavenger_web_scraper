@@ -1,21 +1,16 @@
-import boto3
 import requests
 import pymysql
-import json
+from ingredient_parser import parse_ingredient
 from constants import *
 import diets as DietInfo
 from recipe import Recipe
-from recipe_stat import RecipeStat
 from bs4 import BeautifulSoup
-from decimal import Decimal
 from utils import *
-from ingredient_parser import parse_ingredient
-
-client = boto3.client('rds', region_name = REGION_NAME, aws_access_key_id = AWS_ACCESS_KEY, aws_secret_access_key = AWS_SECRET_KEY)
 
 connection = pymysql.connect(
     host=ENDPOINT,
     user=USER,
+    port=PORT,
     password=PASSWORD,
     database=DBNAME
 )
@@ -23,9 +18,10 @@ connection = pymysql.connect(
 cursor = connection.cursor()
 
 cursor.execute("select count(*) from recipe")
-#idCount: int = cursor.fetchone()[0]
+# idCount: int = cursor.fetchone()[0]
 
 idCount = 0
+
 
 # -- FUNCTIONS -- #
 
@@ -34,16 +30,16 @@ def parse_ingredient_string(ingredient_string) -> dict:
     parsed_ingredient = parse_ingredient(ingredient_string)
     print(parsed_ingredient)
 
-    if len(parsed_ingredient.amount) != 0:
+    if len(parsed_ingredient.get('quantity')) != 0:
 
-        quantity = parsed_ingredient.amount[0].quantity
-        if (quantity.__contains__('.')):
-            if (quantity.startswith('0')):
+        quantity = parsed_ingredient.get('quantity')
+        if quantity.__contains__('.'):
+            if quantity.startswith('0'):
                 quantity = dec_to_proper_frac(Decimal(checkStringContainsDecimal(quantity))).split('0')[1].strip()
             else:
                 quantity = dec_to_proper_frac(Decimal(checkStringContainsDecimal(quantity)))
 
-        unit = parsed_ingredient.amount[0].unit
+        unit = parsed_ingredient.get('unit')
     else:
         quantity = "0"
         unit = ""
@@ -51,30 +47,25 @@ def parse_ingredient_string(ingredient_string) -> dict:
     if quantity == 1 and unit.endswith('s'):
         unit = unit[:-1]
 
-    if parsed_ingredient.sentence is not None:
-        sentence = parsed_ingredient.sentence
+    if parsed_ingredient.get('sentence') is not None:
+        sentence = parsed_ingredient.get('sentence')
     else:
         sentence = ''
 
-    if parsed_ingredient.name is not None:
-        name = parsed_ingredient.name.text
+    if parsed_ingredient.get('name') is not None:
+        name = parsed_ingredient.get('name')
     else:
         name = ''
 
-    if parsed_ingredient.comment is not None:
-        comment = parsed_ingredient.comment.text
+    if parsed_ingredient.get('comment') is not None:
+        comment = parsed_ingredient.get('comment')
+        if doesStringContainDecimal:
+            comment = convert_decimals_to_fractions(comment)
     else:
         comment = ''
 
-    if parsed_ingredient.preparation is not None:
-        prep = parsed_ingredient.preparation.text
-        if (doesStringContainDecimal):
-            prep = convert_decimals_to_fractions(prep)
-    else:
-        prep = ''
-
-    if parsed_ingredient.other is not None:
-        other = parsed_ingredient.other.text
+    if parsed_ingredient.get('other') is not None:
+        other = parsed_ingredient.get('other')
     else:
         other = ''
 
@@ -84,24 +75,23 @@ def parse_ingredient_string(ingredient_string) -> dict:
         'quantity': quantity,
         'unit': unit,
         'comment': comment,
-        'preparation': prep,
         'other': other
     }
 
-def put_recipe(recipe):
+
+def put_recipe(complete_recipe):
     cursor.execute(
         insertRecipeSQL,
         [
-            recipe.title,
-            recipe.source,
-            recipe.site_name,
-            recipe.url,
-            recipe.servings,
-            recipe.image,
-            recipe.total_time,
-            recipe.prep_time,
-            recipe.cook_time,
-            recipe.calories
+            complete_recipe.title,
+            complete_recipe.source,
+            complete_recipe.site_name,
+            complete_recipe.url,
+            complete_recipe.servings,
+            complete_recipe.image,
+            complete_recipe.total_time,
+            complete_recipe.prep_time,
+            complete_recipe.cook_time
         ]
     )
     cursor.connection.commit()
@@ -109,24 +99,24 @@ def put_recipe(recipe):
     cursor.execute(
         insertNutritionInfoSQL,
         [
-            recipe.recipe_id,
-            recipe.calories,
-            recipe.total_fat,
-            recipe.total_fat_dv,
-            recipe.saturated_fat,
-            recipe.saturated_fat_dv,
-            recipe.carbohydrates,
-            recipe.carbohydrates_dv,
-            recipe.fiber,
-            recipe.fiber_dv,
-            recipe.sugar,
-            recipe.sugar_dv,
-            recipe.protein,
-            recipe.protein_dv,
-            recipe.cholesterol,
-            recipe.cholesterol_dv,
-            recipe.sodium,
-            recipe.sodium_dv
+            complete_recipe.recipe_id,
+            complete_recipe.calories,
+            complete_recipe.total_fat,
+            complete_recipe.total_fat_dv,
+            complete_recipe.saturated_fat,
+            complete_recipe.saturated_fat_dv,
+            complete_recipe.carbohydrates,
+            complete_recipe.carbohydrates_dv,
+            complete_recipe.fiber,
+            complete_recipe.fiber_dv,
+            complete_recipe.sugar,
+            complete_recipe.sugar_dv,
+            complete_recipe.protein,
+            complete_recipe.protein_dv,
+            complete_recipe.cholesterol,
+            complete_recipe.cholesterol_dv,
+            complete_recipe.sodium,
+            complete_recipe.sodium_dv
         ]
     )
     cursor.connection.commit()
@@ -135,14 +125,13 @@ def put_recipe(recipe):
         cursor.execute(
             insertIngredientSQL,
             [
-                recipe.recipe_id,
+                complete_recipe.recipe_id,
                 ingredient["sentence"],
                 ingredient["name"],
                 ingredient["quantity"],
                 ingredient["unit"],
                 ingredient["comment"],
-                ingredient["other"],
-                ingredient["preparation"]
+                ingredient["other"]
             ]
         )
         cursor.connection.commit()
@@ -151,7 +140,7 @@ def put_recipe(recipe):
         cursor.execute(
             insertStepSQL,
             [
-                recipe.recipe_id,
+                complete_recipe.recipe_id,
                 step
             ]
         )
@@ -161,19 +150,14 @@ def put_recipe(recipe):
         cursor.execute(
             insertDietSQL,
             [
-                recipe.recipe_id,
+                complete_recipe.recipe_id,
                 diet
             ]
         )
         cursor.connection.commit()
-    # obj = python_obj_to_dynamo_obj(dictionary)
-    # print(json.dumps(obj))
-    # client.put_item(
-    #     TableName = RECIPE_TABLE,
-    #     Item=obj
-    # )
 
-#--------------------------------------------
+
+# --------------------------------------------
 
 basePage = requests.get(FOOD_NETWORK_URL)
 pageTitleList = []
@@ -198,7 +182,7 @@ for page in pageTitleList:
 if idCount < allPages.__sizeof__():
 
     # Only scanning 10 recipes
-    for page in allPages[idCount: 1]:
+    for page in allPages[idCount: 10]:
 
         page1 = requests.get(page)
 
@@ -460,7 +444,7 @@ if idCount < allPages.__sizeof__():
             recipe.sodium = int(sodium)
             if sodium != -1:
                 recipe.sodium_dv = int((int(sodium) / DV_SODIUM) * 100)
-            
+
             recipe.cholesterol = int(cholesterol)
             if cholesterol != -1:
                 recipe.cholesterol_dv = int((int(cholesterol) / DV_CHOLESTEROL) * 100)
@@ -498,4 +482,3 @@ if idCount < allPages.__sizeof__():
 else:
     print("idCount ( " + str(idCount) + " )" + " is larger than the number of pages to find ( " +
           str(allPages.__sizeof__()) + " )")
-
