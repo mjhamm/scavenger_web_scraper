@@ -35,9 +35,9 @@ def parse_ingredient_string(ingredient_string) -> dict:
         quantity = parsed_ingredient.get('quantity')
         if quantity.__contains__('.'):
             if quantity.startswith('0'):
-                quantity = dec_to_proper_frac(Decimal(checkStringContainsDecimal(quantity))).split('0')[1].strip()
+                quantity = dec_to_proper_frac(Decimal(check_string_contains_decimal(quantity))).split('0')[1].strip()
             else:
-                quantity = dec_to_proper_frac(Decimal(checkStringContainsDecimal(quantity)))
+                quantity = dec_to_proper_frac(Decimal(check_string_contains_decimal(quantity)))
 
         unit = parsed_ingredient.get('unit')
     else:
@@ -59,7 +59,7 @@ def parse_ingredient_string(ingredient_string) -> dict:
 
     if parsed_ingredient.get('comment') is not None:
         comment = parsed_ingredient.get('comment')
-        if doesStringContainDecimal:
+        if comment.__contains__('.'):
             comment = convert_decimals_to_fractions(comment)
     else:
         comment = ''

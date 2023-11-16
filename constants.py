@@ -17,7 +17,7 @@ ENDPOINT = 'pantry-rds-cluster-instance-1.cafbhjmtde7x.us-east-2.rds.amazonaws.c
 PORT = 3306
 USER = 'admin'
 PASSWORD = 'i#QT>RiY#MC1a8rYcu-yUVNi)k1a'
-DBNAME = 'pantry'#'pantry-rds-cluster-instance-1'
+DBNAME = 'pantry'
 
 # TABLES
 RECIPE_TABLE = 'recipe'
