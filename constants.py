@@ -32,6 +32,8 @@ FOOD_NETWORK_URL = 'https://www.foodnetwork.com/recipes/recipes-a-z'
 
 # SQL
 
+insertTotalRecipesSQL = """INSERT INTO total_recipes (total) VALUES (%s)"""
+
 insertRecipeSQL = """INSERT INTO recipe (title, source, site_name, url, servings, image, total_time, prep_time,
 cook_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 

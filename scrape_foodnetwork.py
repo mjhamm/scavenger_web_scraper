@@ -17,10 +17,10 @@ connection = pymysql.connect(
 
 cursor = connection.cursor()
 
-cursor.execute("select count(*) from recipe")
-# idCount: int = cursor.fetchone()[0]
+cursor.execute("select total from total_recipes")
+idCount: int = cursor.fetchone()[0]
 
-idCount = 0
+print(idCount)
 
 
 # -- FUNCTIONS -- #
@@ -156,6 +156,13 @@ def put_recipe(complete_recipe):
         )
         cursor.connection.commit()
 
+    cursor.execute(
+        insertTotalRecipesSQL,
+        [
+            idCount
+        ]
+    )
+
 
 # --------------------------------------------
 
@@ -182,7 +189,7 @@ for page in pageTitleList:
 if idCount < allPages.__sizeof__():
 
     # Only scanning 10 recipes
-    for page in allPages[idCount: 10]:
+    for page in allPages[idCount: 20]:
 
         page1 = requests.get(page)
 
