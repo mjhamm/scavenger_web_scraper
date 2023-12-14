@@ -1,0 +1,437 @@
+import requests
+import pymysql
+from ingredient_parser import parse_ingredient
+
+import constants
+from constants import *
+import diets as DietInfo
+from recipe import Recipe
+from bs4 import BeautifulSoup
+from utils import *
+from wikibooks_url_enum import *
+import itertools
+
+# connection = pymysql.connect(
+#     host=ENDPOINT,
+#     user=USER,
+#     port=PORT,
+#     password=PASSWORD,
+#     database=DBNAME
+# )
+#
+# cursor = connection.cursor()
+#
+# cursor.execute("select total from total_recipes")
+# idCount: int = cursor.fetchone()[0]
+#
+# print(idCount)
+
+
+# -- FUNCTIONS -- #
+
+# Parses Ingredient String into separate readable parts
+def parse_ingredient_string(ingredient_string) -> dict:
+    parsed_ingredient = parse_ingredient(ingredient_string)
+    print(parsed_ingredient)
+
+    if len(parsed_ingredient.get('quantity')) != 0:
+
+        quantity = parsed_ingredient.get('quantity')
+        if quantity.__contains__('.'):
+            if quantity.startswith('0'):
+                quantity = dec_to_proper_frac(Decimal(check_string_contains_decimal(quantity))).split('0')[1].strip()
+            else:
+                quantity = dec_to_proper_frac(Decimal(check_string_contains_decimal(quantity)))
+
+        unit = parsed_ingredient.get('unit')
+    else:
+        quantity = "0"
+        unit = ""
+
+    if quantity == 1 and unit.endswith('s'):
+        unit = unit[:-1]
+
+    if parsed_ingredient.get('sentence') is not None:
+        sentence = parsed_ingredient.get('sentence')
+    else:
+        sentence = ''
+
+    if parsed_ingredient.get('name') is not None:
+        name = parsed_ingredient.get('name')
+    else:
+        name = ''
+
+    if parsed_ingredient.get('comment') is not None:
+        comment = parsed_ingredient.get('comment')
+        if comment.__contains__('.'):
+            comment = convert_decimals_to_fractions(comment)
+    else:
+        comment = ''
+
+    if parsed_ingredient.get('other') is not None:
+        other = parsed_ingredient.get('other')
+    else:
+        other = ''
+
+    return {
+        'sentence': sentence,
+        'name': name,
+        'quantity': quantity,
+        'unit': unit,
+        'comment': comment,
+        'other': other
+    }
+
+
+# def put_recipe(complete_recipe):
+    # cursor.execute(
+    #     insertRecipeSQL,
+    #     [
+    #         complete_recipe.title,
+    #         complete_recipe.source,
+    #         complete_recipe.site_name,
+    #         complete_recipe.url,
+    #         complete_recipe.servings,
+    #         complete_recipe.image,
+    #         complete_recipe.total_time,
+    #         complete_recipe.prep_time,
+    #         complete_recipe.cook_time
+    #     ]
+    # )
+    # cursor.connection.commit()
+    #
+    # cursor.execute(
+    #     insertNutritionInfoSQL,
+    #     [
+    #         complete_recipe.recipe_id,
+    #         complete_recipe.calories,
+    #         complete_recipe.total_fat,
+    #         complete_recipe.total_fat_dv,
+    #         complete_recipe.saturated_fat,
+    #         complete_recipe.saturated_fat_dv,
+    #         complete_recipe.carbohydrates,
+    #         complete_recipe.carbohydrates_dv,
+    #         complete_recipe.fiber,
+    #         complete_recipe.fiber_dv,
+    #         complete_recipe.sugar,
+    #         complete_recipe.sugar_dv,
+    #         complete_recipe.protein,
+    #         complete_recipe.protein_dv,
+    #         complete_recipe.cholesterol,
+    #         complete_recipe.cholesterol_dv,
+    #         complete_recipe.sodium,
+    #         complete_recipe.sodium_dv
+    #     ]
+    # )
+    # cursor.connection.commit()
+    #
+    # for ingredient in ingredients:
+    #     cursor.execute(
+    #         insertIngredientSQL,
+    #         [
+    #             complete_recipe.recipe_id,
+    #             ingredient["sentence"],
+    #             ingredient["name"],
+    #             ingredient["quantity"],
+    #             ingredient["unit"],
+    #             ingredient["comment"],
+    #             ingredient["other"]
+    #         ]
+    #     )
+    #     cursor.connection.commit()
+    #
+    # for step in steps:
+    #     cursor.execute(
+    #         insertStepSQL,
+    #         [
+    #             complete_recipe.recipe_id,
+    #             step
+    #         ]
+    #     )
+    #     cursor.connection.commit()
+    #
+    # for diet in diets:
+    #     cursor.execute(
+    #         insertDietSQL,
+    #         [
+    #             complete_recipe.recipe_id,
+    #             diet
+    #         ]
+    #     )
+    #     cursor.connection.commit()
+    #
+    # cursor.execute(
+    #     insertTotalRecipesSQL,
+    #     [
+    #         idCount
+    #     ]
+    # )
+
+
+# --------------------------------------------
+
+for baseUrl in itertools.islice(WikibooksUrl, 1):
+    print(baseUrl.value)
+
+    urlList = []
+
+    basePage = requests.get(baseUrl.value)
+    soup1 = BeautifulSoup(basePage.content, "html.parser")
+
+    mainDiv = soup1.find("div", {"id": 'mw-pages'})
+    subDiv = mainDiv.find_all("div", {"class": 'mw-category-group'})
+    for div in subDiv:
+        mainUl = div.find("ul")
+        categoriesList = mainUl.find_all("li")
+        for liItem in categoriesList:
+            urlEntry = constants.WIKIBOOKS_BASE_URL_TEMPLATE + liItem.find('a').get("href")
+            urlList.append(urlEntry)
+
+    for _url in urlList[:1]:
+        recipe = Recipe()
+
+        page1 = requests.get(_url)
+        soup = BeautifulSoup(page1.content, "html.parser")
+
+        # Get source from history contribution
+        try:
+            sourceUrl = (constants.WIKIBOOKS_BASE_URL_TEMPLATE +
+                         soup.find("li", {"id": 'ca-history'}).find('a').get('href'))
+
+            sourcePage = requests.get(sourceUrl)
+            sourceSoup = BeautifulSoup(sourcePage.content, "html.parser")
+
+            historySection = sourceSoup.find("section", {"id": 'pagehistory'})
+            lastUl = historySection.find_all("ul", {"class": "mw-contributions-list"})[-1]
+            lastLi = lastUl.find_all("li")[-1]
+            sourceFull = lastLi.find('span', {"class": "history-user"}).find('a').get('title').split(" ")[0]
+            recipe.source = sourceFull[5:]
+        except Exception as e:
+            print('source error:' + str(e))
+
+        # Site Name
+        if recipe.site_name == "":
+            site_name = "WikiBooks"
+
+        if recipe.source == "":
+            source = recipe.site_name
+
+        if recipe.url == "":
+            recipe.url = _url
+
+#
+#             try:
+#                 if image == "":
+#                     image = soup1.find("meta", {"property": 'og:image'})["content"].strip()
+#                     print("image: " + image)
+#             except TypeError:
+#                 print("image type error")
+#
+#             # Title
+#             try:
+#                 if title == "":
+#                     title = soup1.find("span", {"class": 'o-AssetTitle__a-HeadlineText'}).text.strip()
+#                     print("title: " + title)
+#             except TypeError:
+#                 print("title type error")
+#
+#             # Total time
+#             try:
+#                 totalTitle = soup1.find("ul", {"class": 'o-RecipeInfo__m-Time'})
+#                 if totalTitle.find("span",
+#                                    {"class": 'm-RecipeInfo__a-Description--Total'}) is not None and total_time == "":
+#                     total_time = totalTitle.find("span", {"class": 'm-RecipeInfo__a-Description--Total'}).text.strip()
+#                     print("total time: " + total_time)
+#             except TypeError:
+#                 print("type error")
+#
+#             for span in soup1.find_all("span", {"class": 'o-RecipeInfo__a-Headline'}):
+#                 text = span.find_next("span", {"class": 'o-RecipeInfo__a-Description'}).text.strip()
+#
+#                 # Servings
+#                 if span.text.lower().__contains__("yield") and servings == "":
+#                     servings = text
+#                     print("servings: " + servings)
+#                 # Prep Time
+#                 if span.text.lower().__contains__("prep") and prep_time == "":
+#                     prep_time = text
+#                     print("prep_time: " + prep_time)
+#                 # Cook Time
+#                 if span.text.lower().__contains__("cook") and cook_time == "":
+#                     cook_time = text
+#                     print("cook_time: " + cook_time)
+#                 # Total Time
+#                 if span.text.lower().__contains__("total") and total_time == "":
+#                     total_time = text
+#                     print("total_time: " + total_time)
+#
+#             # Ingredients
+#             ingredientInfo = soup1.find_all("span", {"class": 'o-Ingredients__a-Ingredient--CheckboxLabel'})
+#             for item in ingredientInfo:
+#                 if item.text != "Deselect All":
+#                     ingredient_strings.append(item.text.strip())
+#                     print("string: " + item.text.strip())
+#                     ingredients.append(parse_ingredient_string(item.text.strip()))
+#                     print("ingredient: " + item.text.strip())
+#
+#             # Dairy Free
+#             if DietInfo.isDairyFree(ingredient_strings):
+#                 diets.append(DietInfo.DietType.DAIRY_FREE.value)
+#
+#             # Vegan
+#             if DietInfo.isVegan(ingredient_strings):
+#                 diets.append(DietInfo.DietType.VEGAN.value)
+#
+#             # Gluten Free
+#             if DietInfo.isGlutenFree(ingredient_strings):
+#                 diets.append(DietInfo.DietType.GLUTEN_FREE.value)
+#
+#             # Vegetarian
+#             if DietInfo.isVegetarian(ingredient_strings):
+#                 diets.append(DietInfo.DietType.VEGETARIAN.value)
+#
+#             # Nut Free
+#             if DietInfo.isNutFree(ingredient_strings):
+#                 diets.append(DietInfo.DietType.NUT_FREE.value)
+#
+#             # Steps
+#             for li in soup1.find_all("li", {"class": 'o-Method__m-Step'}):
+#                 steps.append(li.text.strip())
+#                 print("step: " + li.text.strip())
+#
+#             # Nutrition
+#             for dl in soup1.find_all("dl", {"class": 'm-NutritionTable__a-Content'}):
+#                 for dt in dl.find_all_next("dt", {"class": 'm-NutritionTable__a-Headline'}):
+#                     # Calories
+#                     if dt.next.strip().lower().__contains__("cal") and calories == -1:
+#                         caloriesFull = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         if caloriesFull.__contains__(" "):
+#                             calories = caloriesFull.split(" ")[0].strip()
+#                         else:
+#                             calories = caloriesFull
+#                         print("calories: " + calories)
+#                     # Total Fat
+#                     if dt.next.strip().lower().__contains__("total fat") and total_fat == -1:
+#                         total_fat_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         total_fat = total_fat_full.split("g")[0].strip()
+#                         print("total fat: " + total_fat)
+#                     # Saturated Fat
+#                     if dt.next.strip().lower().__contains__("saturated fat") and saturated_fat == -1:
+#                         saturated_fat_full = dt.find_next(
+#                             "dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         saturated_fat = saturated_fat_full.split("g")[0].strip()
+#                         print("saturated fat: " + saturated_fat)
+#                     # Carbohydrates
+#                     if dt.next.strip().lower().__contains__("carbohydrates") and carbs == -1:
+#                         carbs_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         carbs = carbs_full.split("g")[0].strip()
+#                         print("carbs: " + carbs)
+#                     # Dietary Fiber
+#                     if dt.next.strip().lower().__contains__("dietary fiber") and fiber == -1:
+#                         fiber_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         fiber = fiber_full.split("g")[0].strip()
+#                         print("fiber: " + fiber)
+#                     # Sugar
+#                     if dt.next.strip().lower().__contains__("sugar") and sugar == -1:
+#                         sugar_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         sugar = sugar_full.split("g")[0].strip()
+#                         print("sugar: " + sugar)
+#                     # Protein
+#                     if dt.next.strip().lower().__contains__("protein") and protein == -1:
+#                         protein_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         protein = protein_full.split("g")[0].strip()
+#                         print("protein: " + protein)
+#                     # Cholesterol
+#                     if dt.next.strip().lower().__contains__("cholesterol") and cholesterol == -1:
+#                         cholesterol_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         cholesterol = cholesterol_full.split("m")[0].strip()
+#                         print("cholesterol: " + cholesterol)
+#                     # Sodium
+#                     if dt.next.strip().lower().__contains__("sodium") and sodium == -1:
+#                         sodium_full = dt.find_next("dd", {"class": 'm-NutritionTable__a-Description'}).next.strip()
+#                         sodium = sodium_full.split("m")[0].strip()
+#                         print("sodium: " + sodium)
+#
+#             # Low Carb
+#             if DietInfo.isLowCarb(carbs):
+#                 diets.append(DietInfo.DietType.LOW_CARB.value)
+#
+#             # Low Fat
+#             if DietInfo.isLowFat(calories, total_fat):
+#                 diets.append(DietInfo.DietType.LOW_FAT.value)
+#
+#             # Low Sodium
+#             if DietInfo.isLowSodium(sodium):
+#                 diets.append(DietInfo.DietType.LOW_SODIUM.value)
+#
+#             # High Protein
+#             if DietInfo.isHighProtein(calories, protein):
+#                 diets.append(DietInfo.DietType.HIGH_PROTEIN.value)
+#
+#             # Setting all recipe information
+#             # ID
+#             recipe.recipe_id = idCount + 1
+#             # Title of Recipe
+#             recipe.title = title
+#             # Source of Recipe
+#             if source == "":
+#                 source = site_name
+#             recipe.source = source
+#             # Website Name
+#             recipe.site_name = site_name
+#             # Servings
+#             recipe.servings = servings
+#             # Image
+#             recipe.image = image
+#             # Url
+#             recipe.url = url
+#             # Total Time
+#             recipe.total_time = total_time
+#             # Prep Time
+#             recipe.prep_time = prep_time
+#             # Cook Time
+#             recipe.cook_time = cook_time
+#             # Nutrition Info
+#             recipe.calories = int(calories)
+#
+#             recipe.sodium = int(sodium)
+#             if sodium != -1:
+#                 recipe.sodium_dv = int((int(sodium) / DV_SODIUM) * 100)
+#
+#             recipe.cholesterol = int(cholesterol)
+#             if cholesterol != -1:
+#                 recipe.cholesterol_dv = int((int(cholesterol) / DV_CHOLESTEROL) * 100)
+#             recipe.sugar = int(sugar)
+#             if sugar != -1:
+#                 recipe.sugar_dv = int((int(sugar) / DV_SUGAR) * 100)
+#             recipe.fiber = int(fiber)
+#             if fiber != -1:
+#                 recipe.fiber_dv = int((int(fiber) / DV_FIBER) * 100)
+#             recipe.protein = int(protein)
+#             if protein != -1:
+#                 recipe.protein_dv = int((int(protein) / DV_PROTEIN) * 100)
+#             recipe.total_fat = int(total_fat)
+#             if total_fat != -1:
+#                 recipe.total_fat_dv = int((int(total_fat) / DV_FAT) * 100)
+#             recipe.saturated_fat = int(saturated_fat)
+#             if saturated_fat != -1:
+#                 recipe.saturated_fat_dv = int((int(saturated_fat) / DV_SATURATED_FAT) * 100)
+#             recipe.carbohydrates = int(carbs)
+#             if carbs != -1:
+#                 recipe.carbohydrates_dv = int((int(carbs) / DV_CARBS) * 100)
+#             # Ingredients
+#             recipe.ingredients = ingredients
+#             # Steps
+#             recipe.steps = steps
+#             # Diets
+#             recipe.diets = diets
+#
+#             if recipe.recipe_id == -1 or calories == -1:
+#                 print("something is -1. Skipping the recipe")
+#             else:
+#                 put_recipe(recipe)
+#                 idCount += 1
+#
+# else:
+#     print("idCount ( " + str(idCount) + " )" + " is larger than the number of pages to find ( " +
+#           str(allPages.__sizeof__()) + " )")

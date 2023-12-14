@@ -30,6 +30,29 @@ STAT_TABLE = 'stat'
 # URLS
 FOOD_NETWORK_URL = 'https://www.foodnetwork.com/recipes/recipes-a-z'
 
+#WIKIBOOKS
+WIKIBOOKS_BASE_URL_TEMPLATE = 'https://en.wikibooks.org'
+WIKIBOOKSURL_1 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes'
+WIKIBOOKSURL_2 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Baked+Tilapia+with+White+Wine%0ABaked+Tilapia+with+White+Wine#mw-pages'
+WIKIBOOKSURL_3 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Bolognese+Sauce+%27Bambi%27%0ABolognese+Sauce+%27Bambi%27#mw-pages'
+WIKIBOOKSURL_4 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Chapati%0AChapati#mw-pages'
+WIKIBOOKSURL_5 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Christmas+Pudding+I%0AChristmas+Pudding+I#mw-pages'
+WIKIBOOKSURL_6 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Dan+Sululu+%28Nigerian+Cassava+Dumplings%29%0ADan+Sululu+%28Nigerian+Cassava+Dumplings%29#mw-pages'
+WIKIBOOKSURL_7 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Feij%C3%A3o+Tropeiro+%28Brazilian+Beans+and+Sausage%29%0AFeij%C3%A3o+Tropeiro+%28Brazilian+Beans+and+Sausage%29#mw-pages'
+WIKIBOOKSURL_8 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Ginger+Snap%0AGinger+Snap#mw-pages'
+WIKIBOOKSURL_9 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Honey+Lime+Pork+Loin%0AHoney+Lime+Pork+Loin#mw-pages'
+WIKIBOOKSURL_10 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Khara+Pongal+%28Rice+and+Lentil+Porridge%29%0AKhara+Pongal+%28Rice+and+Lentil+Porridge%29#mw-pages'
+WIKIBOOKSURL_11 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Mango+Atchar%0AMango+Atchar#mw-pages'
+WIKIBOOKSURL_12 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Musakhan+%28Palestinian+Spiced+Chicken%29%0AMusakhan+%28Palestinian+Spiced+Chicken%29#mw-pages'
+WIKIBOOKSURL_13 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Nigerian+Yam+Balls+%28Ji+Akpurakpu%29%0ANigerian+Yam+Balls+%28Ji+Akpurakpu%29#mw-pages'
+WIKIBOOKSURL_14 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Peach+Cobbler%0APeach+Cobbler#mw-pages'
+WIKIBOOKSURL_15 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Pudina+Hilsa+%28Bengali+Fish+with+Mint%29%0APudina+Hilsa+%28Bengali+Fish+with+Mint%29#mw-pages'
+WIKIBOOKSURL_16 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Russian-style+Waffle+Cake%0ARussian-style+Waffle+Cake#mw-pages'
+WIKIBOOKSURL_17 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Smoky+Tuna+Melts%0ASmoky+Tuna+Melts#mw-pages'
+WIKIBOOKSURL_18 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Stuffed+Courgette%0AStuffed+Courgette#mw-pages'
+WIKIBOOKSURL_19 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Tom+Kha+Kai%0ATom+Kha+Kai#mw-pages'
+WIKIBOOKSURL_20 = 'https://en.wikibooks.org/w/index.php?title=Category:Recipes&pagefrom=Wonton+Soup%0AWonton+Soup#mw-pages'
+
 # SQL
 
 insertTotalRecipesSQL = """INSERT INTO total_recipes (total) VALUES (%s)"""
