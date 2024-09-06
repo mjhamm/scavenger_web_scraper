@@ -6,13 +6,6 @@
 # # from bs4 import BeautifulSoup
 # # from ingredient_parser import parse_ingredient
 #
-# # ENDPOINT = 'scavenger.cafbhjmtde7x.us-east-2.rds.amazonaws.com'
-# # PORT = '3306'
-# # USER = 'admin'
-# # PASSWORD = '$94RdsPass394'
-# # REGION = "us-east-2c"
-# # DBNAME = 'scavenger'
-#
 # # # Daily Value Constants
 # # DV_CARBS = 275
 # # DV_FAT = 78
